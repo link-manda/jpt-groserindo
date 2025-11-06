@@ -1,0 +1,86 @@
+/* File: assets/css/print.css */
+/* Gaya ini hanya akan diterapkan saat halaman dicetak. */
+
+@media print {
+
+    /* --- PERBAIKAN UTAMA: Mengatasi Layout yang Terpotong --- */
+
+    /* 1. Reset layout utama agar konten bisa mengalir ke halaman berikutnya */
+    body, #app, .flex-1.flex.flex-col.overflow-hidden {
+        display: block !important; /* Hapus flexbox */
+        height: auto !important;   /* Hapus tinggi layar yang membatasi */
+        overflow: visible !important; /* Tampilkan semua konten, jangan sembunyikan */
+    }
+    
+    main#main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+    /* --- AKHIR PERBAIKAN UTAMA --- */
+
+
+    /* 2. Sembunyikan semua elemen yang tidak perlu dicetak */
+    #sidebar, 
+    header.lg\:hidden,
+    a[href*="page="], /* Semua link 'kembali' */
+    button, /* Semua tombol */
+    form, /* Semua form filter */
+    .no-print {
+        display: none !important;
+    }
+
+    /* 3. Atur ulang gaya dasar untuk cetak */
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 11pt;
+        background-color: #fff !important;
+        color: #000 !important;
+    }
+
+    /* 4. Buat area cetak memenuhi seluruh halaman */
+    #print-area, .bg-white.p-8.rounded-lg.shadow {
+        display: block !important;
+        width: 100% !important;
+        padding: 0.5cm !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* 5. Atur ulang gaya tabel agar rapi */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 6px;
+        text-align: left;
+    }
+
+    thead {
+        display: table-header-group; /* Mengulang header tabel di setiap halaman */
+        background-color: #f2f2f2 !important; 
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+
+    tbody {
+        display: table-row-group;
+    }
+    
+    tr {
+        page-break-inside: avoid; /* Mencegah baris terpotong */
+    }
+
+    h1, h2, h3, h4 {
+        page-break-after: avoid;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+}

@@ -1,0 +1,7 @@
+@config {
+  content: [
+    './**/*.php',
+    './assets/js/**/*.js',
+  ],
+}
+@import "tailwindcss";
