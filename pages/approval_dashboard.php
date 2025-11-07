@@ -190,7 +190,7 @@ try {
                             <div class="flex flex-col sm:flex-row gap-2">
                                 <button onclick="openApprovalModal('bk', <?php echo $bk['id_bk']; ?>, 'approve')" 
                                     class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors flex items-center justify-center">
-                                    <i class="fa-solid fa-check mr-2"></i> Approve
+                                    <i class="fa-solid fa-check mr-2"></i> Approve (Kurangi Stok)
                                 </button>
                                 <button onclick="openApprovalModal('bk', <?php echo $bk['id_bk']; ?>, 'decline')" 
                                     class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors flex items-center justify-center">

@@ -122,13 +122,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
                 updatePOStatusAfterBMApproval($pdo, $id);
                 $_SESSION['notification'] = ['type' => 'success', 'message' => 'Barang Masuk disetujui & stok diperbarui.'];
             } elseif ($type === 'bk') {
+                // Kurangi stok BARU di saat approval
+                $stmt_items = $pdo->prepare("SELECT id_barang, jumlah_keluar FROM barang_keluar_detail WHERE id_bk = ?");
+                $stmt_items->execute([$id]);
+                $items = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($items as $it) {
+                    $stmt_reduce = $pdo->prepare("UPDATE barang SET stok = stok - ? WHERE id_barang = ?");
+                    $stmt_reduce->execute([$it['jumlah_keluar'], $it['id_barang']]);
+                }
                 $stmt = $pdo->prepare("
                     UPDATE barang_keluar 
                     SET status_approval = 'Approved', approved_by = ?, approved_at = NOW(), approval_notes = ? 
                     WHERE id_bk = ?
                 ");
                 $stmt->execute([$user_id, $notes, $id]);
-                $_SESSION['notification'] = ['type' => 'success', 'message' => 'Barang Keluar disetujui.'];
+                $_SESSION['notification'] = ['type' => 'success', 'message' => 'Barang Keluar disetujui & stok dikurangi.'];
             }
 
             // Tandai notifikasi terkait sebagai read
@@ -175,21 +183,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
                 $stmt->execute([$user_id, $notes, $id]);
                 $_SESSION['notification'] = ['type' => 'warning', 'message' => 'Barang Masuk ditolak.'];
             } elseif ($type === 'bk') {
-                // Kembalikan stok
-                $stmt_det = $pdo->prepare("SELECT id_barang, jumlah_keluar FROM barang_keluar_detail WHERE id_bk = ?");
-                $stmt_det->execute([$id]);
-                $rows = $stmt_det->fetchAll(PDO::FETCH_ASSOC);
-                $stmt_restore = $pdo->prepare("UPDATE barang SET stok = stok + ? WHERE id_barang = ?");
-                foreach ($rows as $r) {
-                    $stmt_restore->execute([$r['jumlah_keluar'], $r['id_barang']]);
-                }
+                // Tidak perlu restore stok karena belum dikurangi sebelumnya
                 $stmt = $pdo->prepare("
                     UPDATE barang_keluar 
                     SET status_approval = 'Declined', approved_by = ?, approved_at = NOW(), approval_notes = ? 
                     WHERE id_bk = ?
                 ");
                 $stmt->execute([$user_id, $notes, $id]);
-                $_SESSION['notification'] = ['type' => 'warning', 'message' => 'Barang Keluar ditolak & stok dikembalikan.'];
+                $_SESSION['notification'] = ['type' => 'warning', 'message' => 'Barang Keluar ditolak. Stok tetap.'];
             }
         }
 
@@ -498,46 +499,44 @@ if ($page === 'barang-keluar') {
 
         $pdo->beginTransaction();
         try {
-            // Validasi stok sebelum melakukan operasi apapun
+            // Validasi stok (tetap lakukan pengecekan ketersediaan)
             foreach ($id_barang_list as $index => $id_barang) {
                 $jumlah_keluar = (int)$jumlah_list[$index];
                 if (empty($id_barang) || $jumlah_keluar <= 0) continue;
-
                 $stmt_check = $pdo->prepare("SELECT stok FROM barang WHERE id_barang = ?");
                 $stmt_check->execute([$id_barang]);
-                $stok_saat_ini = $stmt_check->fetchColumn();
-
+                $stok_saat_ini = (int)$stmt_check->fetchColumn();
                 if ($stok_saat_ini < $jumlah_keluar) {
-                    // Jika stok tidak cukup, batalkan semua dan kirim pesan error
-                    throw new Exception("Stok untuk barang ID {$id_barang} tidak mencukupi (hanya tersisa {$stok_saat_ini}).");
+                    throw new Exception("Stok untuk barang ID {$id_barang} tidak mencukupi (tersisa {$stok_saat_ini}).");
                 }
             }
 
-            // 1. Simpan data utama ke tabel 'barang_keluar'
+            // Simpan transaksi (stok BELUM dikurangi)
             $sql_bk = "INSERT INTO barang_keluar (tanggal_bk, catatan, id_user, status_approval) VALUES (?, ?, ?, 'Pending')";
             $stmt_bk = $pdo->prepare($sql_bk);
             $stmt_bk->execute([$tanggal_bk, $catatan, $user_id]);
             $id_bk_baru = $pdo->lastInsertId();
 
-            // 2. Update stok dan simpan detail
+            // Simpan detail
             $sql_detail = "INSERT INTO barang_keluar_detail (id_bk, id_barang, jumlah_keluar) VALUES (?, ?, ?)";
             $stmt_detail = $pdo->prepare($sql_detail);
-            $sql_update_stok = "UPDATE barang SET stok = stok - ? WHERE id_barang = ?";
-            $stmt_update_stok = $pdo->prepare($sql_update_stok);
-
             foreach ($id_barang_list as $index => $id_barang) {
                 $jumlah_keluar = (int)$jumlah_list[$index];
                 if (empty($id_barang) || $jumlah_keluar <= 0) continue;
-                
-                // Kurangi stok
-                $stmt_update_stok->execute([$jumlah_keluar, $id_barang]);
-                // Catat detail
                 $stmt_detail->execute([$id_bk_baru, $id_barang, $jumlah_keluar]);
             }
 
-            $pdo->commit();
-            $_SESSION['notification'] = ['type' => 'success', 'message' => 'Transaksi barang keluar berhasil dicatat.'];
+            // Kirim notifikasi ke Direktur
+            sendApprovalNotification(
+                $pdo,
+                'Barang_Keluar',
+                $id_bk_baru,
+                'Barang Keluar Menunggu Approval',
+                "Transaksi Barang Keluar #{$id_bk_baru} dicatat oleh {$_SESSION['nama_lengkap']} dan menunggu persetujuan Anda."
+            );
 
+            $pdo->commit();
+            $_SESSION['notification'] = ['type' => 'success', 'message' => 'Transaksi barang keluar dibuat. Menunggu approval.'];
         } catch (Exception $e) {
             $pdo->rollBack();
             $_SESSION['notification'] = ['type' => 'error', 'message' => $e->getMessage()];
