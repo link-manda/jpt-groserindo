@@ -13,12 +13,15 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $id_bm = (int)$_GET['id'];
 
 try {
-    // Ambil data barang masuk
+    // FIXED: Ambil data barang masuk dengan JOIN yang benar
     $stmt_bm = $pdo->prepare("
-        SELECT bm.*, s.nama_supplier, s.alamat as supplier_alamat, s.telepon as supplier_telepon,
+        SELECT bm.*, 
+               po.kode_po,
+               s.nama_supplier, s.alamat as supplier_alamat, s.telepon as supplier_telepon,
                u.nama_lengkap as penerima_nama,
                approver.nama_lengkap as approved_by_name
         FROM barang_masuk bm
+        JOIN purchase_orders po ON bm.id_po = po.id_po
         JOIN suppliers s ON bm.id_supplier = s.id_supplier
         JOIN users u ON bm.id_user = u.id_user
         LEFT JOIN users approver ON bm.approved_by = approver.id_user
@@ -37,7 +40,8 @@ try {
 
     // Ambil detail barang
     $stmt_detail = $pdo->prepare("
-        SELECT bmd.*, b.nama_barang, b.merek, b.stok as stok_saat_ini
+        SELECT bmd.id_bm_detail, bmd.id_barang, bmd.jumlah_masuk,
+               b.nama_barang, b.merek, b.stok as stok_saat_ini
         FROM barang_masuk_detail bmd
         JOIN barang b ON bmd.id_barang = b.id_barang
         WHERE bmd.id_bm = ?
@@ -196,8 +200,8 @@ try {
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">No</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Barang</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Merek</th>
-                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Jumlah</th>
-                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Kondisi</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Jumlah Masuk</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Stok Saat Ini</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -207,15 +211,14 @@ try {
                         <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($detail['nama_barang']); ?></td>
                         <td class="px-4 py-3 text-sm text-gray-600"><?php echo htmlspecialchars($detail['merek'] ?? '-'); ?></td>
                         <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_masuk'], 0, ',', '.'); ?></td>
-                        <td class="px-4 py-3 text-center">
+                        <td class="px-4 py-3 text-center text-sm">
                             <?php
-                            $kondisi = $detail['kondisi'];
-                            $kondisi_class = $kondisi === 'Baik' ? 'bg-green-100 text-green-700' : 
-                                            ($kondisi === 'Rusak' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700');
+                            if ($bm['status_approval'] === 'Approved') {
+                                echo htmlspecialchars($detail['stok_saat_ini']);
+                            } else {
+                                echo '<span class="text-gray-400 italic">Pending Update</span>';
+                            }
                             ?>
-                            <span class="px-2 py-1 text-xs font-medium rounded-full <?php echo $kondisi_class; ?>">
-                                <?php echo $kondisi; ?>
-                            </span>
                         </td>
                     </tr>
                     <?php endforeach; ?>

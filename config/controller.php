@@ -11,6 +11,199 @@ if (session_status() == PHP_SESSION_NONE) {
 // Membutuhkan koneksi database
 require_once 'database.php';
 
+// ===== HELPER FUNCTIONS - PINDAHKAN KE ATAS =====
+// KIRIM NOTIFIKASI KE DIREKTUR (Helper Function)
+function sendApprovalNotification($pdo, $type, $reference_id, $title, $message) {
+    // Ambil ID Direktur (asumsi role = 'Admin' adalah Direktur, atau sesuaikan)
+    $stmt_director = $pdo->query("SELECT id_user FROM users WHERE role = 'Admin' LIMIT 1");
+    $director_id = $stmt_director->fetchColumn();
+
+    if ($director_id) {
+        $stmt = $pdo->prepare("INSERT INTO notifications (type, reference_id, id_user_target, title, message) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$type, $reference_id, $director_id, $title, $message]);
+    }
+}
+
+// (BARU) Helper untuk update status PO setelah BM Approved
+function updatePOStatusAfterBMApproval(PDO $pdo, int $id_bm): void {
+    // Ambil id_po dari barang_masuk
+    $stmt = $pdo->prepare("SELECT id_po FROM barang_masuk WHERE id_bm = ?");
+    $stmt->execute([$id_bm]);
+    $id_po = (int)$stmt->fetchColumn();
+    if (!$id_po) return;
+
+    // Total dipesan di PO
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(jumlah_pesan),0) FROM po_details WHERE id_po = ?");
+    $stmt->execute([$id_po]);
+    $total_pesan = (int)$stmt->fetchColumn();
+
+    // Total diterima (Approved) dari semua BM milik PO tsb
+    $stmt = $pdo->prepare("
+        SELECT COALESCE(SUM(d.jumlah_masuk),0)
+        FROM barang_masuk_detail d
+        JOIN barang_masuk bm ON d.id_bm = bm.id_bm
+        WHERE bm.id_po = ? AND bm.status_approval = 'Approved'
+    ");
+    $stmt->execute([$id_po]);
+    $total_diterima = (int)$stmt->fetchColumn();
+
+    // Jika semua sudah diterima, ubah status PO
+    if ($total_diterima >= $total_pesan && $total_pesan > 0) {
+        $upd = $pdo->prepare("UPDATE purchase_orders SET status = 'Selesai Diterima' WHERE id_po = ?");
+        $upd->execute([$id_po]);
+    }
+}
+// ===== END HELPER FUNCTIONS =====
+
+// === HANDLER APPROVAL VIA POST (EARLY, AGAR TIDAK TERLEWAT) ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
+    $action = $_POST['workflow_action']; // approve | decline
+    $type = $_POST['workflow_type'];     // po | bm | bk
+    $id = (int)$_POST['workflow_id'];
+    $user_id = $_SESSION['user_id'];
+    $notes = trim($_POST['approval_notes'] ?? '');
+    if ($action === 'decline' && $notes === '') {
+        $notes = 'Ditolak oleh Direktur';
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        if ($action === 'approve') {
+            if ($type === 'po') {
+                $stmt = $pdo->prepare("
+                    UPDATE purchase_orders 
+                    SET status_approval = 'Approved',
+                        approved_by = ?,
+                        approved_at = NOW(),
+                        approval_notes = ?
+                    WHERE id_po = ?
+                ");
+                $stmt->execute([$user_id, $notes, $id]);
+
+                // Notifikasi ke Staf Penerimaan (type enum: 'PO')
+                $stmt_po = $pdo->prepare("SELECT kode_po FROM purchase_orders WHERE id_po = ?");
+                $stmt_po->execute([$id]);
+                $po_data = $stmt_po->fetch(PDO::FETCH_ASSOC);
+
+                $stmt_staff = $pdo->query("SELECT id_user FROM users WHERE role = 'Staf Penerimaan'");
+                $stmt_notif = $pdo->prepare("
+                    INSERT INTO notifications (type, reference_id, id_user_target, title, message) 
+                    VALUES ('PO', ?, ?, ?, ?)
+                ");
+                while ($staff = $stmt_staff->fetch(PDO::FETCH_ASSOC)) {
+                    $stmt_notif->execute([
+                        $id,
+                        $staff['id_user'],
+                        'PO Disetujui',
+                        "PO {$po_data['kode_po']} telah disetujui. Silakan proses penerimaan."
+                    ]);
+                }
+
+                $_SESSION['notification'] = ['type' => 'success', 'message' => 'PO berhasil disetujui.'];
+            } elseif ($type === 'bm') {
+                $stmt = $pdo->prepare("
+                    UPDATE barang_masuk 
+                    SET status_approval = 'Approved', approved_by = ?, approved_at = NOW(), approval_notes = ? 
+                    WHERE id_bm = ?
+                ");
+                $stmt->execute([$user_id, $notes, $id]);
+
+                // Update stok dari detail BM
+                $stmt_details = $pdo->prepare("SELECT id_barang, jumlah_masuk FROM barang_masuk_detail WHERE id_bm = ?");
+                $stmt_details->execute([$id]);
+                $rows = $stmt_details->fetchAll(PDO::FETCH_ASSOC);
+                $stmt_up = $pdo->prepare("UPDATE barang SET stok = stok + ? WHERE id_barang = ?");
+                foreach ($rows as $r) {
+                    $stmt_up->execute([$r['jumlah_masuk'], $r['id_barang']]);
+                }
+
+                // PANGGIL HELPER UNTUK UPDATE STATUS PO
+                updatePOStatusAfterBMApproval($pdo, $id);
+                $_SESSION['notification'] = ['type' => 'success', 'message' => 'Barang Masuk disetujui & stok diperbarui.'];
+            } elseif ($type === 'bk') {
+                $stmt = $pdo->prepare("
+                    UPDATE barang_keluar 
+                    SET status_approval = 'Approved', approved_by = ?, approved_at = NOW(), approval_notes = ? 
+                    WHERE id_bk = ?
+                ");
+                $stmt->execute([$user_id, $notes, $id]);
+                $_SESSION['notification'] = ['type' => 'success', 'message' => 'Barang Keluar disetujui.'];
+            }
+
+            // Tandai notifikasi terkait sebagai read
+            $map = ['po' => 'PO', 'bm' => 'Barang_Masuk', 'bk' => 'Barang_Keluar'];
+            $stmt_read = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE type = ? AND reference_id = ?");
+            $stmt_read->execute([$map[$type], $id]);
+
+        } elseif ($action === 'decline') {
+            if ($type === 'po') {
+                $stmt = $pdo->prepare("
+                    UPDATE purchase_orders 
+                    SET status_approval = 'Declined',
+                        status = 'Dibatalkan',
+                        approved_by = ?,
+                        approved_at = NOW(),
+                        approval_notes = ?
+                    WHERE id_po = ?
+                ");
+                $stmt->execute([$user_id, $notes, $id]);
+
+                // Notifikasi ke pembuat (type enum: 'PO')
+                $stmt_po = $pdo->prepare("SELECT id_user, kode_po FROM purchase_orders WHERE id_po = ?");
+                $stmt_po->execute([$id]);
+                $po_data = $stmt_po->fetch(PDO::FETCH_ASSOC);
+
+                $stmt_notif = $pdo->prepare("
+                    INSERT INTO notifications (type, reference_id, id_user_target, title, message) 
+                    VALUES ('PO', ?, ?, ?, ?)
+                ");
+                $stmt_notif->execute([
+                    $id,
+                    $po_data['id_user'],
+                    'PO Ditolak',
+                    "PO {$po_data['kode_po']} ditolak. Alasan: {$notes}"
+                ]);
+
+                $_SESSION['notification'] = ['type' => 'warning', 'message' => 'PO ditolak & dibatalkan.'];
+            } elseif ($type === 'bm') {
+                $stmt = $pdo->prepare("
+                    UPDATE barang_masuk 
+                    SET status_approval = 'Declined', approved_by = ?, approved_at = NOW(), approval_notes = ? 
+                    WHERE id_bm = ?
+                ");
+                $stmt->execute([$user_id, $notes, $id]);
+                $_SESSION['notification'] = ['type' => 'warning', 'message' => 'Barang Masuk ditolak.'];
+            } elseif ($type === 'bk') {
+                // Kembalikan stok
+                $stmt_det = $pdo->prepare("SELECT id_barang, jumlah_keluar FROM barang_keluar_detail WHERE id_bk = ?");
+                $stmt_det->execute([$id]);
+                $rows = $stmt_det->fetchAll(PDO::FETCH_ASSOC);
+                $stmt_restore = $pdo->prepare("UPDATE barang SET stok = stok + ? WHERE id_barang = ?");
+                foreach ($rows as $r) {
+                    $stmt_restore->execute([$r['jumlah_keluar'], $r['id_barang']]);
+                }
+                $stmt = $pdo->prepare("
+                    UPDATE barang_keluar 
+                    SET status_approval = 'Declined', approved_by = ?, approved_at = NOW(), approval_notes = ? 
+                    WHERE id_bk = ?
+                ");
+                $stmt->execute([$user_id, $notes, $id]);
+                $_SESSION['notification'] = ['type' => 'warning', 'message' => 'Barang Keluar ditolak & stok dikembalikan.'];
+            }
+        }
+
+        $pdo->commit();
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['notification'] = ['type' => 'error', 'message' => 'Approval error: ' . $e->getMessage()];
+        error_log('Approval error: ' . $e->getMessage());
+    }
+
+    header("Location: index.php?page=approval-dashboard");
+    exit();
+}
+
 // Cek apakah ada aksi yang dikirim melalui POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
@@ -206,7 +399,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $catatan = $_POST['catatan'] ?? '';
             $user_id = $_SESSION['user_id'];
             
-            // Ambil detail barang dari PO
+            // Ambil detail barang dari PO dan id_supplier
+            $stmt_po_info = $pdo->prepare("SELECT id_supplier FROM purchase_orders WHERE id_po = ?");
+            $stmt_po_info->execute([$id_po]);
+            $po_info = $stmt_po_info->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$po_info) {
+                $_SESSION['notification'] = ['type' => 'error', 'message' => 'PO tidak ditemukan.'];
+                header("Location: index.php?page=delivery-order");
+                exit();
+            }
+            
+            $id_supplier = $po_info['id_supplier'];
+            
             $stmt_items = $pdo->prepare("SELECT * FROM po_details WHERE id_po = ?");
             $stmt_items->execute([$id_po]);
             $items_to_receive = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
@@ -216,15 +421,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 // 1. Generate nomor Barang Masuk
                 $nomor_bm = 'BM-' . date('Ymd-His');
                 
-                // 2. Insert ke tabel barang_masuk (TIDAK update stok dulu)
-                $sql_bm = "INSERT INTO barang_masuk (id_po, nomor_bm, tanggal_terima, id_user, catatan, status_approval) 
-                           VALUES (?, ?, ?, ?, ?, 'Pending')";
+                // 2. FIXED: Insert dengan id_supplier
+                $sql_bm = "INSERT INTO barang_masuk (id_po, nomor_bm, tanggal_terima, id_supplier, id_user, catatan, status_approval) 
+                           VALUES (?, ?, ?, ?, ?, ?, 'Pending')";
                 $stmt_bm = $pdo->prepare($sql_bm);
-                $stmt_bm->execute([$id_po, $nomor_bm, $tanggal_terima, $user_id, $catatan]);
+                $stmt_bm->execute([$id_po, $nomor_bm, $tanggal_terima, $id_supplier, $user_id, $catatan]);
                 $id_bm_baru = $pdo->lastInsertId();
 
                 // 3. Insert detail barang masuk
-                $sql_detail = "INSERT INTO barang_masuk_detail (id_bm, id_barang, jumlah_masuk, kondisi) VALUES (?, ?, ?, 'Baik')";
+                $sql_detail = "INSERT INTO barang_masuk_detail (id_bm, id_barang, jumlah_masuk) VALUES (?, ?, ?)";
                 $stmt_detail = $pdo->prepare($sql_detail);
                 
                 foreach ($items_to_receive as $item) {
@@ -390,194 +595,4 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
     }
     
 }
-
-// DECLINE ACTION
-if (isset($_GET['action']) && $_GET['action'] === 'decline') {
-    $type = $_GET['type'];
-    $id = $_GET['id'];
-    $user_id = $_SESSION['user_id'];
-    $notes = $_POST['approval_notes'] ?? 'Ditolak oleh Direktur';
-
-    try {
-        $pdo->beginTransaction();
-
-        if ($type === 'po') {
-            // PERBAIKAN: Update status_approval DAN status sekaligus
-            $stmt = $pdo->prepare("
-                UPDATE purchase_orders 
-                SET status_approval = 'Declined', 
-                    status = 'Dibatalkan', 
-                    approved_by = ?, 
-                    approved_at = NOW(), 
-                    approval_notes = ? 
-                WHERE id_po = ?
-            ");
-            $stmt->execute([$user_id, $notes, $id]);
-
-            // Kirim notifikasi ke pembuat PO
-            $stmt_po = $pdo->prepare("SELECT id_user, kode_po FROM purchase_orders WHERE id_po = ?");
-            $stmt_po->execute([$id]);
-            $po_data = $stmt_po->fetch(PDO::FETCH_ASSOC);
-
-            $stmt_notif = $pdo->prepare("INSERT INTO notifications (type, reference_id, id_user_target, title, message) VALUES (?, ?, ?, ?, ?)");
-            $stmt_notif->execute([
-                'PO_Declined',
-                $id,
-                $po_data['id_user'],
-                'Purchase Order Ditolak',
-                "PO {$po_data['kode_po']} ditolak oleh Direktur. Alasan: {$notes}"
-            ]);
-
-            $_SESSION['notification'] = ['type' => 'warning', 'message' => 'Purchase Order berhasil ditolak dan dibatalkan.'];
-        } 
-        elseif ($type === 'bm') {
-            $stmt = $pdo->prepare("UPDATE barang_masuk SET status_approval = 'Declined', approved_by = ?, approved_at = NOW(), approval_notes = ? WHERE id_bm = ?");
-            $stmt->execute([$user_id, $notes, $id]);
-        } elseif ($type === 'bk') {
-            // Kembalikan stok jika Barang Keluar di-decline
-            $stmt_details = $pdo->prepare("SELECT * FROM barang_keluar_detail WHERE id_bk = ?");
-            $stmt_details->execute([$id]);
-            $details = $stmt_details->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($details as $detail) {
-                $stmt_restore = $pdo->prepare("UPDATE barang SET stok = stok + ? WHERE id_barang = ?");
-                $stmt_restore->execute([$detail['jumlah_keluar'], $detail['id_barang']]);
-            }
-
-            $stmt = $pdo->prepare("UPDATE barang_keluar SET status_approval = 'Declined', approved_by = ?, approved_at = NOW(), approval_notes = ? WHERE id_bk = ?");
-            $stmt->execute([$user_id, $notes, $id]);
-        }
-
-        $pdo->commit();
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        $_SESSION['notification'] = ['type' => 'error', 'message' => 'Error: ' . $e->getMessage()];
-    }
-
-    header("Location: index.php?page=approval-dashboard");
-    exit();
 }
-
-// === APPROVE WORKFLOW ACTIONS ===
-if (isset($_GET['action']) && $_GET['action'] === 'approve') {
-    $type = $_GET['type'];
-    $id = $_GET['id'];
-    $user_id = $_SESSION['user_id'];
-    $notes = $_POST['approval_notes'] ?? '';
-
-    try {
-        $pdo->beginTransaction();
-
-        if ($type === 'po') {
-            // PERBAIKAN: Update status_approval menjadi Approved
-            $stmt = $pdo->prepare("
-                UPDATE purchase_orders 
-                SET status_approval = 'Approved', 
-                    approved_by = ?, 
-                    approved_at = NOW(), 
-                    approval_notes = ? 
-                WHERE id_po = ?
-            ");
-            $stmt->execute([$user_id, $notes, $id]);
-            
-            // Status tetap 'Menunggu Penerimaan' untuk bisa diterima gudang
-            
-            // Kirim notifikasi ke Staf Penerimaan
-            $stmt_po = $pdo->prepare("SELECT kode_po FROM purchase_orders WHERE id_po = ?");
-            $stmt_po->execute([$id]);
-            $po_data = $stmt_po->fetch(PDO::FETCH_ASSOC);
-
-            // Ambil semua user dengan role 'Staf Penerimaan'
-            $stmt_staff = $pdo->query("SELECT id_user FROM users WHERE role = 'Staf Penerimaan'");
-            while ($staff = $stmt_staff->fetch(PDO::FETCH_ASSOC)) {
-                $stmt_notif = $pdo->prepare("INSERT INTO notifications (type, reference_id, id_user_target, title, message) VALUES (?, ?, ?, ?, ?)");
-                $stmt_notif->execute([
-                    'PO_Approved',
-                    $id,
-                    $staff['id_user'],
-                    'PO Approved - Siap Diterima',
-                    "Purchase Order {$po_data['kode_po']} telah disetujui oleh Direktur. Silakan konfirmasi penerimaan barang."
-                ]);
-            }
-
-            $_SESSION['notification'] = ['type' => 'success', 'message' => 'Purchase Order berhasil disetujui dan dapat diterima oleh Staf Gudang.'];
-        } 
-        elseif ($type === 'bm') {
-            $stmt = $pdo->prepare("UPDATE barang_masuk SET status_approval = 'Approved', approved_by = ?, approved_at = NOW(), approval_notes = ? WHERE id_bm = ?");
-            $stmt->execute([$user_id, $notes, $id]);
-
-            // Update stok barang
-            $stmt_details = $pdo->prepare("SELECT * FROM barang_masuk_detail WHERE id_bm = ?");
-            $stmt_details->execute([$id]);
-            $details = $stmt_details->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($details as $detail) {
-                $stmt_update = $pdo->prepare("UPDATE barang SET stok = stok + ? WHERE id_barang = ?");
-                $stmt_update->execute([$detail['jumlah_masuk'], $detail['id_barang']]);
-            }
-
-            $_SESSION['notification'] = ['type' => 'success', 'message' => 'Barang Masuk berhasil disetujui dan stok telah diupdate.'];
-        } 
-        elseif ($type === 'bk') {
-            $stmt = $pdo->prepare("UPDATE barang_keluar SET status_approval = 'Approved', approved_by = ?, approved_at = NOW(), approval_notes = ? WHERE id_bk = ?");
-            $stmt->execute([$user_id, $notes, $id]);
-            $_SESSION['notification'] = ['type' => 'success', 'message' => 'Barang Keluar berhasil disetujui.'];
-        }
-
-        // Tandai notifikasi sebagai dibaca
-        $stmt_notif = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE type = ? AND reference_id = ?");
-        $typeMap = ['po' => 'PO', 'bm' => 'Barang_Masuk', 'bk' => 'Barang_Keluar'];
-        $stmt_notif->execute([$typeMap[$type], $id]);
-
-        $pdo->commit();
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        $_SESSION['notification'] = ['type' => 'error', 'message' => 'Error: ' . $e->getMessage()];
-    }
-
-    header("Location: index.php?page=approval-dashboard");
-    exit();
-}
-
-// KIRIM NOTIFIKASI KE DIREKTUR (Helper Function)
-function sendApprovalNotification($pdo, $type, $reference_id, $title, $message) {
-    // Ambil ID Direktur (asumsi role = 'Admin' adalah Direktur, atau sesuaikan)
-    $stmt_director = $pdo->query("SELECT id_user FROM users WHERE role = 'Admin' LIMIT 1");
-    $director_id = $stmt_director->fetchColumn();
-
-    if ($director_id) {
-        $stmt = $pdo->prepare("INSERT INTO notifications (type, reference_id, id_user_target, title, message) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$type, $reference_id, $director_id, $title, $message]);
-    }
-}
-
-// CONTOH PENGGUNAAN: Setelah membuat PO
-if ($page === 'purchase-order' && $action === 'buat_po') {
-    // ...existing code untuk insert PO...
-    
-    // Kirim notifikasi
-    sendApprovalNotification(
-        $pdo, 
-        'PO', 
-        $id_po_baru, 
-        'Purchase Order Baru Menunggu Persetujuan', 
-        "PO #{$kode_po} telah dibuat oleh {$_SESSION['nama_lengkap']} dan memerlukan persetujuan Anda."
-    );
-    
-    $_SESSION['notification'] = ['type' => 'info', 'message' => 'PO berhasil dibuat dan menunggu approval Direktur.'];
-}
-
-// CONTOH: Barang Keluar
-if ($page === 'barang-keluar' && $action === 'buat_transaksi_keluar') {
-    // ...existing code...
-    
-    sendApprovalNotification(
-        $pdo, 
-        'Barang_Keluar', 
-        $id_bk_baru, 
-        'Barang Keluar Baru Menunggu Persetujuan', 
-        "Transaksi Barang Keluar (BK-{$id_bk_baru}) memerlukan approval."
-    );
-}
-
-} 

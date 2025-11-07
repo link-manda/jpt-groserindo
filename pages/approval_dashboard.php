@@ -35,16 +35,37 @@ $stmt_bk = $pdo->query("
 ");
 $pending_bk = $stmt_bk->fetchAll(PDO::FETCH_ASSOC);
 
-// Query untuk Barang Masuk Pending
-$stmt_bm_pending = $pdo->query("
-    SELECT bm.*, po.kode_po, u.nama_lengkap as penerima_nama
-    FROM barang_masuk bm
-    JOIN purchase_orders po ON bm.id_po = po.id_po
-    JOIN users u ON bm.id_user = u.id_user
-    WHERE bm.status_approval = 'Pending'
-    ORDER BY bm.tanggal_terima DESC
-");
-$barang_masuk_pending = $stmt_bm_pending->fetchAll(PDO::FETCH_ASSOC);
+// Query untuk Barang Masuk Pending - FIXED dengan error handling
+try {
+    // Cek dulu apakah kolom id_po sudah ada
+    $check_column = $pdo->query("SHOW COLUMNS FROM barang_masuk LIKE 'id_po'");
+    
+    if ($check_column->rowCount() > 0) {
+        // Kolom id_po sudah ada, gunakan query lengkap
+        $stmt_bm_pending = $pdo->query("
+            SELECT bm.*, 
+                   po.kode_po, 
+                   s.nama_supplier,
+                   u.nama_lengkap as penerima_nama
+            FROM barang_masuk bm
+            JOIN purchase_orders po ON bm.id_po = po.id_po
+            JOIN suppliers s ON bm.id_supplier = s.id_supplier
+            JOIN users u ON bm.id_user = u.id_user
+            WHERE bm.status_approval = 'Pending'
+            ORDER BY bm.tanggal_terima DESC
+        ");
+        $pending_bm = $stmt_bm_pending->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        // Kolom id_po belum ada, tampilkan peringatan
+        $pending_bm = [];
+        $_SESSION['migration_warning'] = true;
+    }
+} catch (PDOException $e) {
+    // Jika terjadi error, set array kosong dan flag warning
+    $pending_bm = [];
+    $_SESSION['migration_warning'] = true;
+    error_log("Error loading barang_masuk: " . $e->getMessage());
+}
 ?>
 
 <!-- Header -->
@@ -204,13 +225,13 @@ $barang_masuk_pending = $stmt_bm_pending->fetchAll(PDO::FETCH_ASSOC);
                                 <h4 class="font-bold text-lg text-gray-800">Barang Masuk #<?php echo $bm['nomor_bm']; ?></h4>
                                 <div class="mt-2 space-y-1 text-sm text-gray-600">
                                     <p><i class="fa-solid fa-calendar mr-2 text-gray-400"></i>
-                                        <strong>Tanggal:</strong> <?php echo date('d M Y', strtotime($bm['tanggal_bm'])); ?>
+                                        <strong>Tanggal:</strong> <?php echo date('d M Y', strtotime($bm['tanggal_terima'])); ?>
                                     </p>
                                     <p><i class="fa-solid fa-truck mr-2 text-gray-400"></i>
                                         <strong>Supplier:</strong> <?php echo htmlspecialchars($bm['nama_supplier']); ?>
                                     </p>
                                     <p><i class="fa-solid fa-user mr-2 text-gray-400"></i>
-                                        <strong>Dicatat oleh:</strong> <?php echo htmlspecialchars($bm['nama_lengkap']); ?>
+                                        <strong>Dicatat oleh:</strong> <?php echo htmlspecialchars($bm['penerima_nama']); ?>
                                     </p>
                                 </div>
                             </div>
@@ -241,22 +262,22 @@ $barang_masuk_pending = $stmt_bm_pending->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Section Barang Masuk Pending -->
+<!-- Section Barang Masuk Pending - FIXED variable name -->
 <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
     <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
         <h2 class="text-xl font-semibold text-white flex items-center">
             <i class="fa-solid fa-truck-ramp-box mr-3"></i>
             Penerimaan Barang Menunggu Verifikasi
-            <?php if (count($barang_masuk_pending) > 0): ?>
+            <?php if (count($pending_bm) > 0): ?>
                 <span class="ml-3 bg-yellow-400 text-purple-900 text-xs font-bold px-3 py-1 rounded-full">
-                    <?php echo count($barang_masuk_pending); ?> Item
+                    <?php echo count($pending_bm); ?> Item
                 </span>
             <?php endif; ?>
         </h2>
     </div>
     
     <div class="p-6">
-        <?php if (count($barang_masuk_pending) > 0): ?>
+        <?php if (count($pending_bm) > 0): ?>
             <div class="overflow-x-auto">
                 <table class="w-full table-auto">
                     <thead class="bg-gray-50">
@@ -269,7 +290,7 @@ $barang_masuk_pending = $stmt_bm_pending->fetchAll(PDO::FETCH_ASSOC);
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <?php foreach ($barang_masuk_pending as $bm): ?>
+                        <?php foreach ($pending_bm as $bm): ?>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-semibold text-purple-600"><?php echo htmlspecialchars($bm['nomor_bm']); ?></td>
                             <td class="px-4 py-3"><?php echo htmlspecialchars($bm['kode_po']); ?></td>
@@ -294,6 +315,12 @@ $barang_masuk_pending = $stmt_bm_pending->fetchAll(PDO::FETCH_ASSOC);
                     </tbody>
                 </table>
             </div>
+        <?php elseif (isset($_SESSION['migration_warning'])): ?>
+            <div class="text-center py-12 text-gray-500">
+                <i class="fa-solid fa-database text-6xl text-red-400 mb-4"></i>
+                <p class="text-lg font-semibold text-red-600">Database Migration Diperlukan</p>
+                <p class="text-sm mt-2">Silakan jalankan migration SQL di atas untuk mengaktifkan fitur ini.</p>
+            </div>
         <?php else: ?>
             <div class="text-center py-12 text-gray-500">
                 <i class="fa-solid fa-check-circle text-6xl text-green-400 mb-4"></i>
@@ -303,42 +330,38 @@ $barang_masuk_pending = $stmt_bm_pending->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Modal Approval/Decline - RESPONSIVE & KONSISTEN -->
+<!-- Modal Approval/Decline -->
 <div id="approvalModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between p-5 border-b border-gray-200 rounded-t">
-            <h3 id="modalTitle" class="text-xl font-semibold text-gray-800"></h3>
-            <button type="button" onclick="closeApprovalModal()" 
-                class="text-gray-400 hover:text-gray-600 transition-colors">
-                <i class="fa-solid fa-times text-xl"></i>
-            </button>
-        </div>
-        
-        <!-- Modal Body -->
-        <form method="POST" id="approvalForm">
-            <div class="p-6">
-                <label for="approval_notes" class="block text-sm font-medium text-gray-700 mb-2">
-                    Catatan Approval <span class="text-gray-400">(Opsional)</span>
-                </label>
-                <textarea name="approval_notes" id="approval_notes" rows="4" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                    placeholder="Tambahkan catatan atau alasan approve/decline..."></textarea>
-            </div>
-            
-            <!-- Modal Footer -->
-            <div class="flex items-center justify-end gap-3 p-5 border-t border-gray-200 rounded-b">
-                <button type="button" onclick="closeApprovalModal()" 
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
-                    <i class="fa-solid fa-times mr-2"></i>Batal
-                </button>
-                <button type="submit" id="confirmButton" 
-                    class="px-4 py-2 rounded text-white font-medium transition-colors">
-                    <i class="fa-solid fa-check mr-2"></i><span id="confirmText">Konfirmasi</span>
-                </button>
-            </div>
-        </form>
+  <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
+    <div class="flex items-center justify-between p-5 border-b border-gray-200 rounded-t">
+      <h3 id="modalTitle" class="text-xl font-semibold text-gray-800"></h3>
+      <button type="button" onclick="closeApprovalModal()" class="text-gray-400 hover:text-gray-600">
+        <i class="fa-solid fa-times text-xl"></i>
+      </button>
     </div>
+    <!-- FIX: set explicit action ke index.php -->
+    <form method="POST" id="approvalForm" action="index.php">
+      <input type="hidden" name="workflow_action" id="workflow_action">
+      <input type="hidden" name="workflow_type" id="workflow_type">
+      <input type="hidden" name="workflow_id" id="workflow_id">
+      <div class="p-6">
+        <label for="approval_notes" class="block text-sm font-medium text-gray-700 mb-2">
+          Catatan Approval <span class="text-gray-400">(Opsional)</span>
+        </label>
+        <textarea name="approval_notes" id="approval_notes" rows="4"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Tambahkan catatan atau alasan approve/decline..."></textarea>
+      </div>
+      <div class="flex items-center justify-end gap-3 p-5 border-t border-gray-200 rounded-b">
+        <button type="button" onclick="closeApprovalModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+          <i class="fa-solid fa-times mr-2"></i>Batal
+        </button>
+        <button type="submit" id="confirmButton" class="px-4 py-2 rounded text-white font-medium">
+          <i class="fa-solid fa-check mr-2"></i><span id="confirmText">Konfirmasi</span>
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script>
@@ -364,36 +387,28 @@ function showTab(tabName) {
 
 // Modal Functions
 function openApprovalModal(type, id, action) {
-    const modal = document.getElementById('approvalModal');
-    const title = document.getElementById('modalTitle');
-    const form = document.getElementById('approvalForm');
-    const confirmBtn = document.getElementById('confirmButton');
-    const confirmText = document.getElementById('confirmText');
-    
-    // Set modal title and button
-    if (action === 'approve') {
-        title.innerHTML = '<i class="fa-solid fa-check-circle text-green-500 mr-2"></i>Approve Transaksi';
-        confirmBtn.className = 'bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white font-medium transition-colors';
-        confirmText.textContent = 'Approve';
-    } else {
-        title.innerHTML = '<i class="fa-solid fa-times-circle text-red-500 mr-2"></i>Decline Transaksi';
-        confirmBtn.className = 'bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-white font-medium transition-colors';
-        confirmText.textContent = 'Decline';
-    }
-    
-    // Set form action - PERBAIKAN: gunakan index.php dengan query string
-    form.action = `index.php?action=${action}&type=${type}&id=${id}`;
-    
-    // Clear textarea
-    document.getElementById('approval_notes').value = '';
-    
-    // Show modal
-    modal.classList.remove('hidden');
-    
-    // Focus on textarea
-    setTimeout(() => {
-        document.getElementById('approval_notes').focus();
-    }, 100);
+  const modal = document.getElementById('approvalModal');
+  const title = document.getElementById('modalTitle');
+  const confirmBtn = document.getElementById('confirmButton');
+  const confirmText = document.getElementById('confirmText');
+
+  document.getElementById('workflow_type').value = type;
+  document.getElementById('workflow_id').value = id;
+  document.getElementById('workflow_action').value = action;
+
+  if (action === 'approve') {
+    title.innerHTML = '<i class="fa-solid fa-check-circle text-green-500 mr-2"></i>Approve Transaksi';
+    confirmBtn.className = 'bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white font-medium';
+    confirmText.textContent = 'Approve';
+  } else {
+    title.innerHTML = '<i class="fa-solid fa-times-circle text-red-500 mr-2"></i>Decline Transaksi';
+    confirmBtn.className = 'bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-white font-medium';
+    confirmText.textContent = 'Decline';
+  }
+
+  document.getElementById('approval_notes').value = '';
+  modal.classList.remove('hidden');
+  setTimeout(() => document.getElementById('approval_notes').focus(), 100);
 }
 
 function closeApprovalModal() {
@@ -419,4 +434,12 @@ document.addEventListener('keydown', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     showTab('po');
 });
+
+function dismissWarning() {
+    // Hide warning via AJAX (optional)
+    fetch('index.php?dismiss_warning=1')
+        .then(() => {
+            location.reload();
+        });
+}
 </script>
