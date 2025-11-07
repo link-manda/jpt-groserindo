@@ -18,22 +18,44 @@ $order = isset($_GET['order']) && strtolower($_GET['order']) == 'asc' ? 'ASC' : 
 
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 
+// Tambahkan filter status
+$filter_status = isset($_GET['filter_status']) ? $_GET['filter_status'] : 'all';
+
 // 2. MEMBANGUN QUERY SQL DINAMIS
-$sql_base = "FROM purchase_orders po JOIN suppliers s ON po.id_supplier = s.id_supplier";
+$sql_base = "FROM purchase_orders po 
+             JOIN suppliers s ON po.id_supplier = s.id_supplier 
+             LEFT JOIN users u ON po.approved_by = u.id_user";
 $params = [];
+$where_clause = "1=1";
+
 if (!empty($search)) {
-    $sql_base .= " WHERE (po.kode_po LIKE ? OR s.nama_supplier LIKE ?)";
+    $where_clause .= " AND (po.kode_po LIKE ? OR s.nama_supplier LIKE ?)";
     $search_param = "%{$search}%";
     $params = [$search_param, $search_param];
 }
 
-$count_sql = "SELECT COUNT(po.id_po) " . $sql_base;
+if ($filter_status === 'active') {
+    $where_clause .= " AND po.status NOT IN ('Dibatalkan', 'Selesai Diterima')";
+} elseif ($filter_status === 'declined') {
+    $where_clause .= " AND po.status_approval = 'Declined'";
+} elseif ($filter_status === 'pending') {
+    $where_clause .= " AND po.status_approval = 'Pending'";
+} elseif ($filter_status === 'approved') {
+    $where_clause .= " AND po.status_approval = 'Approved'";
+}
+
+$count_sql = "SELECT COUNT(po.id_po) " . $sql_base . " WHERE {$where_clause}";
 $stmt_count = $pdo->prepare($count_sql);
 $stmt_count->execute($params);
 $total_records = $stmt_count->fetchColumn();
 $total_pages = ceil($total_records / $limit);
 
-$data_sql = "SELECT po.id_po, po.kode_po, po.tanggal_po, po.status, s.nama_supplier " . $sql_base . " ORDER BY {$sort_by} {$order} LIMIT {$limit} OFFSET {$offset}";
+$data_sql = "SELECT po.id_po, po.kode_po, po.tanggal_po, po.status, po.status_approval, 
+             po.approved_at, s.nama_supplier, u.nama_lengkap as approved_by_name 
+             " . $sql_base . " 
+             WHERE {$where_clause} 
+             ORDER BY {$sort_by} {$order} 
+             LIMIT {$limit} OFFSET {$offset}";
 $stmt = $pdo->prepare($data_sql);
 $stmt->execute($params);
 $po_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -106,7 +128,31 @@ $url_params = ['page' => 'purchase-order', 'search' => $search, 'limit' => $limi
 
 <?php generate_controls('purchase-order', $search, $limit, $sort_by, $order); ?>
 
-<!-- Tabel Daftar Purchase Order -->
+<!-- Tambahkan Filter UI - UPDATED -->
+<div class="mb-4 bg-white p-4 rounded-lg shadow flex gap-2 flex-wrap">
+    <a href="index.php?page=purchase-order&filter_status=all" 
+       class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
+        <i class="fa-solid fa-list mr-1"></i> Semua
+    </a>
+    <a href="index.php?page=purchase-order&filter_status=pending" 
+       class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'pending' ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
+        <i class="fa-solid fa-clock mr-1"></i> Pending
+    </a>
+    <a href="index.php?page=purchase-order&filter_status=approved" 
+       class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'approved' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
+        <i class="fa-solid fa-check-circle mr-1"></i> Approved
+    </a>
+    <a href="index.php?page=purchase-order&filter_status=declined" 
+       class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'declined' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
+        <i class="fa-solid fa-times-circle mr-1"></i> Declined
+    </a>
+    <a href="index.php?page=purchase-order&filter_status=active" 
+       class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
+        <i class="fa-solid fa-play-circle mr-1"></i> Aktif
+    </a>
+</div>
+
+<!-- Tabel Daftar Purchase Order - UPDATED -->
 <div class="bg-white p-6 rounded-lg shadow overflow-x-auto">
     <table class="w-full table-auto">
         <thead class="bg-gray-50">
@@ -114,23 +160,62 @@ $url_params = ['page' => 'purchase-order', 'search' => $search, 'limit' => $limi
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?php generate_sort_link('kode_po', 'Kode PO', $url_params); ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?php generate_sort_link('tanggal_po', 'Tanggal', $url_params); ?></th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?php generate_sort_link('nama_supplier', 'Supplier', $url_params); ?></th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?php generate_sort_link('status', 'Status', $url_params); ?></th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Approval</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?php generate_sort_link('status', 'Status PO', $url_params); ?></th>
                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             <?php foreach ($po_list as $po): ?>
-                <tr>
+                <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900"><?php echo htmlspecialchars($po['kode_po']); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars(date('d M Y', strtotime($po['tanggal_po']))); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($po['nama_supplier']); ?></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm"><?php echo htmlspecialchars(date('d M Y', strtotime($po['tanggal_po']))); ?></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm"><?php echo htmlspecialchars($po['nama_supplier']); ?></td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-3 py-1 text-sm font-medium rounded-full <?php echo $po['status'] == 'Selesai Diterima' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'; ?>">
-                            <?php echo htmlspecialchars($po['status']); ?>
+                        <?php
+                        $approval_status = $po['status_approval'] ?? 'Pending';
+                        $badge_class = '';
+                        $icon = '';
+                        $status_text = '';
+                        
+                        if ($approval_status === 'Approved') {
+                            $badge_class = 'bg-green-100 text-green-700 border border-green-300';
+                            $icon = '<i class="fa-solid fa-check-circle mr-1"></i>';
+                            $status_text = 'Approved';
+                        } elseif ($approval_status === 'Declined') {
+                            $badge_class = 'bg-red-100 text-red-700 border border-red-300';
+                            $icon = '<i class="fa-solid fa-times-circle mr-1"></i>';
+                            $status_text = 'Declined';
+                        } else {
+                            $badge_class = 'bg-yellow-100 text-yellow-700 border border-yellow-300';
+                            $icon = '<i class="fa-solid fa-clock mr-1"></i>';
+                            $status_text = 'Pending';
+                        }
+                        ?>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full <?php echo $badge_class; ?>">
+                            <?php echo $icon . $status_text; ?>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <?php
+                        $status = $po['status'];
+                        $status_class = '';
+                        
+                        if ($status === 'Selesai Diterima') {
+                            $status_class = 'bg-blue-100 text-blue-700';
+                        } elseif ($status === 'Menunggu Penerimaan') {
+                            $status_class = 'bg-yellow-100 text-yellow-700';
+                        } elseif ($status === 'Dibatalkan') {
+                            $status_class = 'bg-red-100 text-red-700';
+                        }
+                        ?>
+                        <span class="px-3 py-1 text-xs font-medium rounded-full <?php echo $status_class; ?>">
+                            <?php echo htmlspecialchars($status); ?>
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <a href="index.php?page=po-detail&id=<?php echo $po['id_po']; ?>" class="text-blue-500 hover:text-blue-700">
+                        <a href="index.php?page=po-detail&id=<?php echo $po['id_po']; ?>" 
+                           class="text-blue-500 hover:text-blue-700 font-medium">
                             <i class="fa-solid fa-eye"></i> Detail
                         </a>
                     </td>

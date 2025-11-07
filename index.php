@@ -48,7 +48,7 @@ $page_title = ucwords(str_replace('-', ' ', $page));
                 <div id="page-content" class="container mx-auto">
                     <?php
                     // Logika routing sederhana
-                    $allowed_pages = ['dashboard', 'barang', 'supplier', 'purchase-order', 'po-detail', 'delivery-order', 'barang-keluar', 'bk-detail', 'laporan', 'laporan-stok', 'laporan-po', 'laporan-penerimaan', 'laporan-barang-keluar', 'pengguna'];
+                    $allowed_pages = ['dashboard', 'barang', 'supplier', 'purchase-order', 'po-detail', 'delivery-order', 'barang-keluar', 'bk-detail', 'laporan', 'laporan-stok', 'laporan-po', 'laporan-penerimaan', 'laporan-barang-keluar', 'pengguna', 'approval-dashboard', 'bm-detail'];
 
                     if (in_array($page, $allowed_pages)) {
                         $page_file = "pages/" . str_replace('-', '_', $page) . ".php";
@@ -73,3 +73,13 @@ $page_title = ucwords(str_replace('-', ' ', $page));
     // Memasukkan footer
     include 'includes/footer.php';
     ?>
+
+    <?php
+    // Setelah section content, pastikan tidak ada script yang bentrok
+    // Hapus atau komentari script lama yang mungkin masih ada
+    // Pastikan tidak ada script inline yang inject onclick
+    // Periksa bagian sebelum closing </body>
+    ?>
+</body>
+
+</html>

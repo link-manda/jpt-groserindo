@@ -8,13 +8,14 @@ $user_role = $_SESSION['role'];
 // Mendefinisikan semua item menu dan role yang bisa mengaksesnya
 $menu_items = [
     ['page' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'fa-solid fa-chart-pie', 'roles' => ['Admin', 'Staf Purchasing', 'Staf Penerimaan']],
+    ['page' => 'approval-dashboard', 'label' => 'Approval Dashboard', 'icon' => 'fa-solid fa-clipboard-check', 'roles' => ['Admin']],
     ['page' => 'barang', 'label' => 'Manajemen Barang', 'icon' => 'fa-solid fa-box', 'roles' => ['Admin', 'Staf Penerimaan', 'Staf Purchasing']],
     ['page' => 'supplier', 'label' => 'Manajemen Supplier', 'icon' => 'fa-solid fa-truck-field', 'roles' => ['Admin', 'Staf Purchasing']],
     ['page' => 'purchase-order', 'label' => 'Purchase Order', 'icon' => 'fa-solid fa-file-invoice', 'roles' => ['Admin', 'Staf Purchasing']],
     ['page' => 'delivery-order', 'label' => 'Penerimaan Barang', 'icon' => 'fa-solid fa-truck-ramp-box', 'roles' => ['Admin', 'Staf Penerimaan']],
     ['page' => 'barang-keluar', 'label' => 'Barang Keluar', 'icon' => 'fa-solid fa-right-from-bracket', 'roles' => ['Admin', 'Staf Penerimaan']],
     ['page' => 'laporan', 'label' => 'Laporan', 'icon' => 'fa-solid fa-file-alt', 'roles' => ['Admin']],
-    ['page' => 'pengguna', 'label' => 'Manajemen Pengguna', 'icon' => 'fa-solid fa-users', 'roles' => ['Admin']]
+    ['page' => 'pengguna', 'label' => 'Manajemen Pengguna', 'icon' => 'fa-solid fa-users', 'roles' => ['Admin']],
 ];
 
 // Mengambil halaman aktif saat ini dari URL
