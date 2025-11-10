@@ -45,11 +45,11 @@ $url_params = ['page' => 'supplier', 'search' => $search, 'limit' => $limit, 'so
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-bold text-gray-800">Manajemen Supplier</h1>
     <div class="flex gap-2">
+        <?php if ($can_manage): ?>
         <button id="btn-import-supplier" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2">
             <i class="fa-solid fa-file-excel"></i>
             <span>Import</span>
         </button>
-        <?php if ($can_manage): ?>
             <button id="btn-tambah-supplier" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2">
                 <i class="fa-solid fa-plus"></i>
                 <span>Tambah Supplier</span>

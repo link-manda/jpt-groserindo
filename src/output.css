@@ -36,6 +36,7 @@
     --color-blue-50: oklch(97% 0.014 254.604);
     --color-blue-100: oklch(93.2% 0.032 255.585);
     --color-blue-200: oklch(88.2% 0.059 254.128);
+    --color-blue-400: oklch(70.7% 0.165 254.624);
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-700: oklch(48.8% 0.243 264.376);
@@ -512,17 +513,11 @@
   .flex-1 {
     flex: 1;
   }
-  .flex-shrink {
-    flex-shrink: 1;
-  }
   .flex-shrink-0 {
     flex-shrink: 0;
   }
   .shrink {
     flex-shrink: 1;
-  }
-  .flex-grow {
-    flex-grow: 1;
   }
   .grow {
     flex-grow: 1;
@@ -607,9 +602,6 @@
   .gap-6 {
     gap: calc(var(--spacing) * 6);
   }
-  .gap-8 {
-    gap: calc(var(--spacing) * 8);
-  }
   .space-y-1 {
     :where(& > :not(:last-child)) {
       --tw-space-y-reverse: 0;
@@ -630,9 +622,6 @@
       margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
       margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
     }
-  }
-  .gap-x-4 {
-    column-gap: calc(var(--spacing) * 4);
   }
   .divide-y {
     :where(& > :not(:last-child)) {
@@ -759,6 +748,12 @@
   .bg-blue-200 {
     background-color: var(--color-blue-200);
   }
+  .bg-blue-400\/10 {
+    background-color: color-mix(in srgb, oklch(70.7% 0.165 254.624) 10%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-blue-400) 10%, transparent);
+    }
+  }
   .bg-blue-500 {
     background-color: var(--color-blue-500);
   }
@@ -792,6 +787,12 @@
   .bg-green-100 {
     background-color: var(--color-green-100);
   }
+  .bg-green-400\/10 {
+    background-color: color-mix(in srgb, oklch(79.2% 0.209 151.711) 10%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-green-400) 10%, transparent);
+    }
+  }
   .bg-green-500 {
     background-color: var(--color-green-500);
   }
@@ -803,6 +804,12 @@
   }
   .bg-red-100 {
     background-color: var(--color-red-100);
+  }
+  .bg-red-400\/10 {
+    background-color: color-mix(in srgb, oklch(70.4% 0.191 22.216) 10%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-red-400) 10%, transparent);
+    }
   }
   .bg-red-500 {
     background-color: var(--color-red-500);
@@ -989,6 +996,9 @@
   .text-blue-100 {
     color: var(--color-blue-100);
   }
+  .text-blue-400 {
+    color: var(--color-blue-400);
+  }
   .text-blue-500 {
     color: var(--color-blue-500);
   }
@@ -1107,6 +1117,28 @@
   .shadow-xl {
     --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .inset-ring {
+    --tw-inset-ring-shadow: inset 0 0 0 1px var(--tw-inset-ring-color, currentcolor);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .inset-ring-blue-400\/30 {
+    --tw-inset-ring-color: color-mix(in srgb, oklch(70.7% 0.165 254.624) 30%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-inset-ring-color: color-mix(in oklab, var(--color-blue-400) 30%, transparent);
+    }
+  }
+  .inset-ring-green-400\/20 {
+    --tw-inset-ring-color: color-mix(in srgb, oklch(79.2% 0.209 151.711) 20%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-inset-ring-color: color-mix(in oklab, var(--color-green-400) 20%, transparent);
+    }
+  }
+  .inset-ring-red-400\/20 {
+    --tw-inset-ring-color: color-mix(in srgb, oklch(70.4% 0.191 22.216) 20%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-inset-ring-color: color-mix(in oklab, var(--color-red-400) 20%, transparent);
+    }
   }
   .outline {
     outline-style: var(--tw-outline-style);

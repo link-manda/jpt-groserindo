@@ -34,6 +34,7 @@ try {
     }
 }
 
+$can_add = ($user_role == 'Admin' || $user_role == 'Staf Purchasing');
 // --- RIWAYAT BARANG MASUK ---
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
@@ -181,6 +182,7 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
                             <td class="px-6 py-4 whitespace-nowrap text-sm"><?php echo htmlspecialchars($po['nama_supplier']); ?></td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <?php if (isset($table_exists) && $table_exists): ?>
+                                <?php if ($can_add): ?> 
                                 <button type="button" 
                                         data-id-po="<?php echo $po['id_po']; ?>" 
                                         data-kode-po="<?php echo htmlspecialchars($po['kode_po']); ?>" 
@@ -188,6 +190,7 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
                                     <i class="fa-solid fa-truck"></i>
                                     <span>Konfirmasi Terima</span>
                                 </button>
+                                <?php endif; ?>
                                 <?php else: ?>
                                 <span class="text-gray-400 text-sm italic">
                                     <i class="fa-solid fa-lock"></i> Migration diperlukan

@@ -38,7 +38,7 @@ CREATE TABLE `barang` (
 
 LOCK TABLES `barang` WRITE;
 /*!40000 ALTER TABLE `barang` DISABLE KEYS */;
-INSERT INTO `barang` VALUES ('BRG001','Mesin Bor Listrik','Makita',70,'Rak A1'),('BRG002','Gerinda Tangan','Bosch',40,'Rak A2'),('BRG003','Palu Konde 1 LB','Tekiro',200,'Rak B1'),('BRG004','Kunci Inggris 12\"','Krisbow',80,'Rak C3'),('BRG005','Obeng Set Presisi','Tekiro',120,'Rak D1'),('BRG006','Tang Kombinasi 7\"','Stanley',95,'Rak C2'),('BRG007','Gergaji Kayu 18\"','Sellery',60,'Rak B3'),('BRG008','Kunci Pas Set 8-24mm','Wipro',75,'Rak C1'),('BRG009','Meteran Gulung 5M','Krisbow',200,'Rak E4'),('BRG010','Waterpass 24\"','Ingco',45,'Rak A3'),('BRG011','Amplas Lembar #240','Nippon',400,'Rak F1'),('BRG012','Cat Tembok Putih 5kg','Avian',88,'Rak F2'),('BRG013','Kuas Cat 3\"','Eterna',350,'Rak F3'),('BRG014','Thinner B Super 1L','Impala',110,'Rak F4'),('BRG015','Lem Pipa PVC 400g','Rucika',130,'Rak G1'),('BRG016','Selotip Pipa 1/2\"','Onda',400,'Rak G2'),('BRG017','Baut Mur Set M12','ATS',200,'Rak H1'),('BRG018','Paku Beton 3cm','Camel',600,'Rak H2'),('BRG019','Kawat Las 2.5mm','Nikko Steel',150,'Rak I1'),('BRG020','Mata Bor Besi Set 13pcs','Bosch',90,'Rak A4'),('BRG021','Sarung Tangan Kain','Generic',800,'Rak J1'),('BRG022','Kacamata Safety Bening','Kings',220,'Rak J2'),('BRG023','Helm Proyek Kuning','MSA',140,'Rak J3'),('BRG024','Sepatu Safety','Cheetah',55,'Rak J4'),('BRG025','Gembok Leher Panjang 40mm','Solid',180,'Rak K1'),('BRG026','Engsel Pintu 4\"','Dekkson',300,'Rak K2'),('BRG027','Tarikan Laci Stainless','Huben',270,'Rak K3'),('BRG028','Roda Etalase 2\" Mati','Generic',450,'Rak L1'),('BRG029','Lem Kayu 500g','Fox',95,'Rak M1'),('BRG030','Dempul Tembok 1kg','Matex',115,'Rak F5'),('BRG031','Sekrup Gipsum 6x1\"','Moon Lion',100,'Rak H3'),('BRG032','Fisher S8 (Pack)','Generic',750,'Rak H4'),('BRG033','Kabel NYM 2x1.5mm (Roll 50M)','Eterna',80,'Rak N1'),('BRG034','Steker Listrik Arde','Broco',320,'Rak N2'),('BRG035','Stop Kontak 4 Lubang','Uticon',150,'Rak N3'),('BRG036','Isolasi Listrik Hitam','Nitto',500,'Rak N4'),('BRG037','Cutter Besar L-500','Kenko',280,'Rak O1'),('BRG038','Isi Cutter L-150','Joyko',600,'Rak O2'),('BRG039','Pistol Lem Tembak','Generic',100,'Rak O3'),('BRG040','Isi Lem Tembak (Pack)','Generic',400,'Rak O4'),('BRG041','Pahat Kayu Set','Tekiro',65,'Rak B4'),('BRG042','Siku Tukang 12\"','Wipro',135,'Rak A5'),('BRG043','Kape Gagang Karet 3\"','Krisbow',210,'Rak F6'),('BRG044','Rol Cat Tembok Besar','Ace Oldfields',160,'Rak F7'),('BRG045','Gunting Seng 10\"','Lippro',85,'Rak C4'),('BRG046','Kunci L Set','Stanley',110,'Rak C5'),('BRG047','Kikir Besi Pipih','Bahco',90,'Rak B5'),('BRG048','Betel Beton / Pahat Beton','ATS',125,'Rak B6'),('BRG049','Dongkrak Botol 2 Ton','Ryu',72,'Rak P1'),('BRG050','Selang Kompresor 10M','Tekiro',70,'Rak P2'),('BRG051','Air Duster Gun','Ingco',130,'Rak P3'),('BRG052','Kunci Roda Palang','Big Boss',100,'Rak C6'),('BRG053','Spray Gun Tabung Atas','Meiji',50,'Rak P4'),('BRG054','Mesin Amplas Bulat','Makita',35,'Rak A6'),('BRG055','Mesin Jigsaw','Bosch',57,'Rak A7'),('BRG056','Mata Jigsaw Set','DeWalt',150,'Rak A8'),('BRG057','Mata Gerinda Potong 4\"','WD',90,'Rak A9'),('BRG058','Mata Gerinda Poles 4\"','Resibon',700,'Rak A10'),('BRG059','Klem C 4\"','Wipro',140,'Rak Q1'),('BRG060','Ragum Meja 3\"','Generic',60,'Rak Q2'),('BRG061','Kunci Pipa 10\"','Rigid',75,'Rak C7'),('BRG062','Gunting Pipa PVC','Tekiro',95,'Rak G3'),('BRG063','Solder Listrik 40W','Goot',170,'Rak N5'),('BRG064','Timah Solder (Roll)','Best',250,'Rak N6'),('BRG065','Multitester Digital','Sanwa',80,'Rak N7'),('BRG066','Tang Kupas Kabel','Ingco',115,'Rak N8'),('BRG067','Skun Kabel Set','Fort',300,'Rak N9'),('BRG068','Kabel Ties 15cm (Pack)','Generic',1200,'Rak N10'),('BRG069','Lampu LED Bohlam 12W','Philips',450,'Rak R1'),('BRG070','Fitting Lampu Gantung','Broco',380,'Rak R2'),('BRG071','Saklar Tunggal','Panasonic',520,'Rak R3'),('BRG072','Saklar Ganda','Panasonic',480,'Rak R4'),('BRG073','T-Dus Cabang 3','Clipsal',600,'Rak R5'),('BRG074','Pipa Conduit 20mm','Clipsal',200,'Rak R6'),('BRG075','Klem Pipa Conduit 20mm (Pack)','Generic',700,'Rak R7'),('BRG076','Cat Minyak Kayu & Besi 1kg Hitam','Kansai',130,'Rak S1'),('BRG077','Kuas Roll Kecil Set','Supra',296,'Rak F8'),('BRG078','Semen Instan 40kg','Mortar Utama',65,'Rak T1'),('BRG079','Semen Putih 1kg','Elephant',250,'Rak T2'),('BRG080','Pasir Curah (Karung 25kg)','Lokal',100,'Rak T3'),('BRG081','Batu Split (Karung 25kg)','Lokal',120,'Rak T4'),('BRG082','Besi Beton 8mm Polos','KS',300,'Rak U1'),('BRG083','Kawat Bendrat (Roll)','Lokal',150,'Rak U2'),('BRG084','Seng Gelombang 6 Kaki','Lokal',90,'Rak V1'),('BRG085','Talang Air PVC 4\"','Wavin',110,'Rak V2'),('BRG086','Sambungan Talang PVC','Wavin',220,'Rak V3'),('BRG087','Lem Talang PVC','Rucika',180,'Rak V4'),('BRG088','Keran Air Tembok 1/2\"','Onda',280,'Rak W1'),('BRG089','Shower Mandi Set','Wasser',140,'Rak W2'),('BRG090','Floor Drain Stainless','Toto',160,'Rak W3'),('BRG091','Gergaji Besi 12\"','Sandflex',130,'Rak B7'),('BRG092','Mata Gergaji Besi (Pack)','Krisbow',400,'Rak B8'),('BRG093','Gunting Dahan','Sellery',100,'Rak X1'),('BRG094','Sekop Taman','Generic',150,'Rak X2'),('BRG095','Selang Air 5/8\" (Meter)','Cobra',500,'Rak X3'),('BRG096','Klem Selang 5/8\"','Generic',800,'Rak X4'),('BRG097','Chain Block 1 Ton','Ryu',210,'Rak Y1'),('BRG098','Tali Tambang PE 8mm (Meter)','Lokal',600,'Rak Y2'),('BRG099','Terpal A3 2x3M','Lokal',200,'Rak Y3'),('BRG100','Rivet 4mm (Pack)','ATS',350,'Rak H5'),('BRG101','Tang Rivet','Tekiro',110,'Rak H6'),('BRG102','Gerobak Sorong','Artco',100,'Rak Z1'),('BRG103','Cangkul','Lokal',90,'Rak Z2'),('BRG104','Linggis 1.5M','Lokal',70,'Rak Z3');
+INSERT INTO `barang` VALUES ('BRG001','Mesin Bor Listrik','Makita',70,'Rak A1'),('BRG002','Gerinda Tangan','Bosch',40,'Rak A2'),('BRG003','Palu Konde 1 LB','Tekiro',200,'Rak B1'),('BRG004','Kunci Inggris 12\"','Krisbow',80,'Rak C3'),('BRG005','Obeng Set Presisi','Tekiro',120,'Rak D1'),('BRG006','Tang Kombinasi 7\"','Stanley',95,'Rak C2'),('BRG007','Gergaji Kayu 18\"','Sellery',60,'Rak B3'),('BRG008','Kunci Pas Set 8-24mm','Wipro',75,'Rak C1'),('BRG009','Meteran Gulung 5M','Krisbow',200,'Rak E4'),('BRG010','Waterpass 24\"','Ingco',45,'Rak A3'),('BRG011','Amplas Lembar #240','Nippon',400,'Rak F1'),('BRG012','Cat Tembok Putih 5kg','Avian',88,'Rak F2'),('BRG013','Kuas Cat 3\"','Eterna',350,'Rak F3'),('BRG014','Thinner B Super 1L','Impala',110,'Rak F4'),('BRG015','Lem Pipa PVC 400g','Rucika',130,'Rak G1'),('BRG016','Selotip Pipa 1/2\"','Onda',400,'Rak G2'),('BRG017','Baut Mur Set M12','ATS',200,'Rak H1'),('BRG018','Paku Beton 3cm','Camel',600,'Rak H2'),('BRG019','Kawat Las 2.5mm','Nikko Steel',150,'Rak I1'),('BRG020','Mata Bor Besi Set 13pcs','Bosch',90,'Rak A4'),('BRG021','Sarung Tangan Kain','Generic',800,'Rak J1'),('BRG022','Kacamata Safety Bening','Kings',220,'Rak J2'),('BRG023','Helm Proyek Kuning','MSA',140,'Rak J3'),('BRG024','Sepatu Safety','Cheetah',55,'Rak J4'),('BRG025','Gembok Leher Panjang 40mm','Solid',180,'Rak K1'),('BRG026','Engsel Pintu 4\"','Dekkson',300,'Rak K2'),('BRG027','Tarikan Laci Stainless','Huben',270,'Rak K3'),('BRG028','Roda Etalase 2\" Mati','Generic',450,'Rak L1'),('BRG029','Lem Kayu 500g','Fox',95,'Rak M1'),('BRG030','Dempul Tembok 1kg','Matex',115,'Rak F5'),('BRG031','Sekrup Gipsum 6x1\"','Moon Lion',100,'Rak H3'),('BRG032','Fisher S8 (Pack)','Generic',750,'Rak H4'),('BRG033','Kabel NYM 2x1.5mm (Roll 50M)','Eterna',80,'Rak N1'),('BRG034','Steker Listrik Arde','Broco',320,'Rak N2'),('BRG035','Stop Kontak 4 Lubang','Uticon',150,'Rak N3'),('BRG036','Isolasi Listrik Hitam','Nitto',500,'Rak N4'),('BRG037','Cutter Besar L-500','Kenko',280,'Rak O1'),('BRG038','Isi Cutter L-150','Joyko',600,'Rak O2'),('BRG039','Pistol Lem Tembak','Generic',100,'Rak O3'),('BRG040','Isi Lem Tembak (Pack)','Generic',400,'Rak O4'),('BRG041','Pahat Kayu Set','Tekiro',65,'Rak B4'),('BRG042','Siku Tukang 12\"','Wipro',135,'Rak A5'),('BRG043','Kape Gagang Karet 3\"','Krisbow',210,'Rak F6'),('BRG044','Rol Cat Tembok Besar','Ace Oldfields',160,'Rak F7'),('BRG045','Gunting Seng 10\"','Lippro',85,'Rak C4'),('BRG046','Kunci L Set','Stanley',110,'Rak C5'),('BRG047','Kikir Besi Pipih','Bahco',90,'Rak B5'),('BRG048','Betel Beton / Pahat Beton','ATS',125,'Rak B6'),('BRG049','Dongkrak Botol 2 Ton','Ryu',72,'Rak P1'),('BRG050','Selang Kompresor 10M','Tekiro',70,'Rak P2'),('BRG051','Air Duster Gun','Ingco',130,'Rak P3'),('BRG052','Kunci Roda Palang','Big Boss',100,'Rak C6'),('BRG053','Spray Gun Tabung Atas','Meiji',50,'Rak P4'),('BRG054','Mesin Amplas Bulat','Makita',40,'Rak A6'),('BRG055','Mesin Jigsaw','Bosch',57,'Rak A7'),('BRG056','Mata Jigsaw Set','DeWalt',150,'Rak A8'),('BRG057','Mata Gerinda Potong 4\"','WD',90,'Rak A9'),('BRG058','Mata Gerinda Poles 4\"','Resibon',700,'Rak A10'),('BRG059','Klem C 4\"','Wipro',140,'Rak Q1'),('BRG060','Ragum Meja 3\"','Generic',60,'Rak Q2'),('BRG061','Kunci Pipa 10\"','Rigid',75,'Rak C7'),('BRG062','Gunting Pipa PVC','Tekiro',95,'Rak G3'),('BRG063','Solder Listrik 40W','Goot',170,'Rak N5'),('BRG064','Timah Solder (Roll)','Best',250,'Rak N6'),('BRG065','Multitester Digital','Sanwa',80,'Rak N7'),('BRG066','Tang Kupas Kabel','Ingco',115,'Rak N8'),('BRG067','Skun Kabel Set','Fort',300,'Rak N9'),('BRG068','Kabel Ties 15cm (Pack)','Generic',1200,'Rak N10'),('BRG069','Lampu LED Bohlam 12W','Philips',450,'Rak R1'),('BRG070','Fitting Lampu Gantung','Broco',380,'Rak R2'),('BRG071','Saklar Tunggal','Panasonic',520,'Rak R3'),('BRG072','Saklar Ganda','Panasonic',480,'Rak R4'),('BRG073','T-Dus Cabang 3','Clipsal',600,'Rak R5'),('BRG074','Pipa Conduit 20mm','Clipsal',200,'Rak R6'),('BRG075','Klem Pipa Conduit 20mm (Pack)','Generic',700,'Rak R7'),('BRG076','Cat Minyak Kayu & Besi 1kg Hitam','Kansai',130,'Rak S1'),('BRG077','Kuas Roll Kecil Set','Supra',296,'Rak F8'),('BRG078','Semen Instan 40kg','Mortar Utama',10,'Rak T1'),('BRG079','Semen Putih 1kg','Elephant',250,'Rak T2'),('BRG080','Pasir Curah (Karung 25kg)','Lokal',100,'Rak T3'),('BRG081','Batu Split (Karung 25kg)','Lokal',120,'Rak T4'),('BRG082','Besi Beton 8mm Polos','KS',300,'Rak U1'),('BRG083','Kawat Bendrat (Roll)','Lokal',150,'Rak U2'),('BRG084','Seng Gelombang 6 Kaki','Lokal',90,'Rak V1'),('BRG085','Talang Air PVC 4\"','Wavin',110,'Rak V2'),('BRG086','Sambungan Talang PVC','Wavin',220,'Rak V3'),('BRG087','Lem Talang PVC','Rucika',180,'Rak V4'),('BRG088','Keran Air Tembok 1/2\"','Onda',280,'Rak W1'),('BRG089','Shower Mandi Set','Wasser',140,'Rak W2'),('BRG090','Floor Drain Stainless','Toto',160,'Rak W3'),('BRG091','Gergaji Besi 12\"','Sandflex',130,'Rak B7'),('BRG092','Mata Gergaji Besi (Pack)','Krisbow',400,'Rak B8'),('BRG093','Gunting Dahan','Sellery',100,'Rak X1'),('BRG094','Sekop Taman','Generic',150,'Rak X2'),('BRG095','Selang Air 5/8\" (Meter)','Cobra',500,'Rak X3'),('BRG096','Klem Selang 5/8\"','Generic',800,'Rak X4'),('BRG097','Chain Block 1 Ton','Ryu',210,'Rak Y1'),('BRG098','Tali Tambang PE 8mm (Meter)','Lokal',600,'Rak Y2'),('BRG099','Terpal A3 2x3M','Lokal',200,'Rak Y3'),('BRG100','Rivet 4mm (Pack)','ATS',350,'Rak H5'),('BRG101','Tang Rivet','Tekiro',110,'Rak H6'),('BRG102','Gerobak Sorong','Artco',100,'Rak Z1'),('BRG103','Cangkul','Lokal',100,'Rak Z2'),('BRG104','Linggis 1.5M','Lokal',70,'Rak Z3');
 /*!40000 ALTER TABLE `barang` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -63,7 +63,7 @@ CREATE TABLE `barang_keluar` (
   KEY `approved_by` (`approved_by`),
   CONSTRAINT `barang_keluar_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`),
   CONSTRAINT `barang_keluar_ibfk_2` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -72,7 +72,7 @@ CREATE TABLE `barang_keluar` (
 
 LOCK TABLES `barang_keluar` WRITE;
 /*!40000 ALTER TABLE `barang_keluar` DISABLE KEYS */;
-INSERT INTO `barang_keluar` VALUES (1,'2025-07-15','Barang cacat',1,'Approved',1,'2025-11-07 10:03:20',''),(2,'2025-07-15','Cacat Fisik',1,'Approved',1,'2025-11-07 10:03:25',''),(3,'2025-07-15','Sampling',1,'Approved',1,'2025-11-07 10:03:29','');
+INSERT INTO `barang_keluar` VALUES (1,'2025-11-08','Barang sudah exp',3,'Approved',1,'2025-11-08 12:47:08','Tentu saja');
 /*!40000 ALTER TABLE `barang_keluar` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -93,7 +93,7 @@ CREATE TABLE `barang_keluar_detail` (
   KEY `id_barang` (`id_barang`),
   CONSTRAINT `barang_keluar_detail_ibfk_1` FOREIGN KEY (`id_bk`) REFERENCES `barang_keluar` (`id_bk`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `barang_keluar_detail_ibfk_2` FOREIGN KEY (`id_barang`) REFERENCES `barang` (`id_barang`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,7 +102,7 @@ CREATE TABLE `barang_keluar_detail` (
 
 LOCK TABLES `barang_keluar_detail` WRITE;
 /*!40000 ALTER TABLE `barang_keluar_detail` DISABLE KEYS */;
-INSERT INTO `barang_keluar_detail` VALUES (1,1,'BRG011',100),(2,1,'BRG057',890),(3,1,'BRG031',900),(4,2,'BRG017',249),(5,3,'BRG077',189);
+INSERT INTO `barang_keluar_detail` VALUES (1,1,'BRG078',60);
 /*!40000 ALTER TABLE `barang_keluar_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -116,7 +116,8 @@ DROP TABLE IF EXISTS `barang_masuk`;
 CREATE TABLE `barang_masuk` (
   `id_bm` int(11) NOT NULL AUTO_INCREMENT,
   `nomor_bm` varchar(50) NOT NULL,
-  `tanggal_bm` date NOT NULL,
+  `id_po` int(11) DEFAULT NULL,
+  `tanggal_terima` date NOT NULL,
   `id_supplier` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
   `catatan` text DEFAULT NULL,
@@ -129,10 +130,14 @@ CREATE TABLE `barang_masuk` (
   KEY `id_supplier` (`id_supplier`),
   KEY `id_user` (`id_user`),
   KEY `approved_by` (`approved_by`),
+  KEY `fk_barang_masuk_po` (`id_po`),
+  KEY `idx_status_approval` (`status_approval`),
+  KEY `idx_tanggal_terima` (`tanggal_terima`),
   CONSTRAINT `barang_masuk_ibfk_1` FOREIGN KEY (`id_supplier`) REFERENCES `suppliers` (`id_supplier`),
   CONSTRAINT `barang_masuk_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`),
-  CONSTRAINT `barang_masuk_ibfk_3` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id_user`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  CONSTRAINT `barang_masuk_ibfk_3` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id_user`),
+  CONSTRAINT `fk_barang_masuk_po` FOREIGN KEY (`id_po`) REFERENCES `purchase_orders` (`id_po`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='Tabel penerimaan barang dari Purchase Order dengan approval workflow';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -141,6 +146,7 @@ CREATE TABLE `barang_masuk` (
 
 LOCK TABLES `barang_masuk` WRITE;
 /*!40000 ALTER TABLE `barang_masuk` DISABLE KEYS */;
+INSERT INTO `barang_masuk` VALUES (1,'BM-20251108-042729',5,'2025-11-08',20,3,'','Approved',1,'2025-11-08 12:27:54',''),(2,'BM-20251108-044858',7,'2025-11-08',31,3,'Kondisi barang bagus tidak perlu di retut','Approved',1,'2025-11-08 12:49:55','Oke terima di gudang'),(3,'BM-20251109-032751',6,'2025-11-11',18,3,'','Approved',1,'2025-11-09 11:29:44','Double cek jika sudah digudang');
 /*!40000 ALTER TABLE `barang_masuk` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -161,7 +167,7 @@ CREATE TABLE `barang_masuk_detail` (
   KEY `id_barang` (`id_barang`),
   CONSTRAINT `barang_masuk_detail_ibfk_1` FOREIGN KEY (`id_bm`) REFERENCES `barang_masuk` (`id_bm`) ON DELETE CASCADE,
   CONSTRAINT `barang_masuk_detail_ibfk_2` FOREIGN KEY (`id_barang`) REFERENCES `barang` (`id_barang`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -170,6 +176,7 @@ CREATE TABLE `barang_masuk_detail` (
 
 LOCK TABLES `barang_masuk_detail` WRITE;
 /*!40000 ALTER TABLE `barang_masuk_detail` DISABLE KEYS */;
+INSERT INTO `barang_masuk_detail` VALUES (1,1,'BRG103',10),(2,2,'BRG054',5),(3,3,'BRG078',5);
 /*!40000 ALTER TABLE `barang_masuk_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -190,7 +197,7 @@ CREATE TABLE `delivery_orders` (
   KEY `id_user_penerima` (`id_user_penerima`),
   CONSTRAINT `delivery_orders_ibfk_1` FOREIGN KEY (`id_po`) REFERENCES `purchase_orders` (`id_po`),
   CONSTRAINT `delivery_orders_ibfk_2` FOREIGN KEY (`id_user_penerima`) REFERENCES `users` (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -199,7 +206,6 @@ CREATE TABLE `delivery_orders` (
 
 LOCK TABLES `delivery_orders` WRITE;
 /*!40000 ALTER TABLE `delivery_orders` DISABLE KEYS */;
-INSERT INTO `delivery_orders` VALUES (1,1,'2025-07-15',3),(2,2,'2025-07-14',3),(3,3,'2025-07-14',3),(4,4,'2025-07-15',3),(5,5,'2025-07-15',3),(6,10,'2025-11-07',3),(7,10,'2025-11-07',3),(8,9,'2025-11-07',1),(9,8,'2025-11-07',1),(10,7,'2025-11-07',1),(11,6,'2025-11-07',1);
 /*!40000 ALTER TABLE `delivery_orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -249,7 +255,7 @@ CREATE TABLE `notifications` (
   PRIMARY KEY (`id_notification`),
   KEY `id_user_target` (`id_user_target`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`id_user_target`) REFERENCES `users` (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -258,7 +264,7 @@ CREATE TABLE `notifications` (
 
 LOCK TABLES `notifications` WRITE;
 /*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
-INSERT INTO `notifications` VALUES (1,'',10,3,'PO Approved - Siap Diterima','Purchase Order PO-20251107-020513 telah disetujui oleh Direktur. Silakan konfirmasi penerimaan barang.',0,'2025-11-07 10:14:35'),(2,'',11,4,'Purchase Order Ditolak','PO PO-20251107-021508 ditolak oleh Direktur. Alasan: Barang sudah ada banyak',0,'2025-11-07 10:15:47'),(3,'',13,3,'PO Approved - Siap Diterima','Purchase Order PO-20251107-083125 telah disetujui oleh Direktur. Silakan konfirmasi penerimaan barang.',0,'2025-11-07 16:33:06');
+INSERT INTO `notifications` VALUES (1,'PO',5,1,'Purchase Order Baru Menunggu Persetujuan','PO #PO-20251107-104353 telah dibuat oleh Krisna dan memerlukan persetujuan Anda.',1,'2025-11-07 18:45:40'),(2,'PO',5,3,'PO Disetujui','PO PO-20251107-104353 telah disetujui. Silakan proses penerimaan.',1,'2025-11-08 12:23:40'),(3,'Barang_Masuk',1,1,'Barang Masuk Menunggu Verifikasi','Barang dari PO PO-20251107-104353 (#BM-20251108-042729) telah diterima gudang oleh Citra (Gudang). Mohon verifikasi kelengkapan barang.',1,'2025-11-08 12:27:29'),(4,'Barang_Keluar',1,1,'Barang Keluar Menunggu Approval','Transaksi Barang Keluar #1 dicatat oleh Citra (Gudang) dan menunggu persetujuan Anda.',1,'2025-11-08 12:28:32'),(5,'PO',6,1,'Purchase Order Baru Menunggu Persetujuan','PO #PO-20251108-044552 telah dibuat oleh Krisna dan memerlukan persetujuan Anda.',1,'2025-11-08 12:46:11'),(6,'PO',7,1,'Purchase Order Baru Menunggu Persetujuan','PO #PO-20251108-044611 telah dibuat oleh Krisna dan memerlukan persetujuan Anda.',1,'2025-11-08 12:46:33'),(7,'PO',7,3,'PO Disetujui','PO PO-20251108-044611 telah disetujui. Silakan proses penerimaan.',1,'2025-11-08 12:48:22'),(8,'Barang_Masuk',2,1,'Barang Masuk Menunggu Verifikasi','Barang dari PO PO-20251108-044611 (#BM-20251108-044858) telah diterima gudang oleh Citra (Gudang). Mohon verifikasi kelengkapan barang.',1,'2025-11-08 12:48:58'),(9,'PO',6,3,'PO Disetujui','PO PO-20251108-044552 telah disetujui. Silakan proses penerimaan.',1,'2025-11-08 12:49:44'),(10,'PO',8,1,'Purchase Order Baru Menunggu Persetujuan','PO #PO-20251109-032556 telah dibuat oleh Krisna dan memerlukan persetujuan Anda.',1,'2025-11-09 11:26:51'),(11,'PO',9,1,'Purchase Order Baru Menunggu Persetujuan','PO #PO-20251109-032708 telah dibuat oleh Krisna dan memerlukan persetujuan Anda.',1,'2025-11-09 11:27:23'),(12,'Barang_Masuk',3,1,'Barang Masuk Menunggu Verifikasi','Barang dari PO PO-20251108-044552 (#BM-20251109-032751) telah diterima gudang oleh Citra (Gudang). Mohon verifikasi kelengkapan barang.',1,'2025-11-09 11:27:51'),(13,'PO',9,3,'PO Disetujui','PO PO-20251109-032708 telah disetujui. Silakan proses penerimaan.',1,'2025-11-09 11:28:49'),(14,'PO',8,3,'PO Disetujui','PO PO-20251109-032556 telah disetujui. Silakan proses penerimaan.',1,'2025-11-09 11:29:10');
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -279,7 +285,7 @@ CREATE TABLE `po_details` (
   KEY `id_barang` (`id_barang`),
   CONSTRAINT `po_details_ibfk_1` FOREIGN KEY (`id_po`) REFERENCES `purchase_orders` (`id_po`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `po_details_ibfk_2` FOREIGN KEY (`id_barang`) REFERENCES `barang` (`id_barang`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -288,7 +294,7 @@ CREATE TABLE `po_details` (
 
 LOCK TABLES `po_details` WRITE;
 /*!40000 ALTER TABLE `po_details` DISABLE KEYS */;
-INSERT INTO `po_details` VALUES (1,1,'BRG001',10),(2,1,'BRG002',15),(3,2,'BRG003',50),(4,3,'BRG001',45),(5,3,'BRG049',32),(6,4,'BRG055',12),(7,5,'BRG078',15),(8,6,'BRG102',60),(9,7,'BRG077',99),(10,8,'BRG017',199),(11,9,'BRG057',80),(12,10,'BRG097',90),(13,10,'BRG077',98),(14,11,'BRG010',10),(15,12,'BRG010',20),(16,13,'BRG054',10);
+INSERT INTO `po_details` VALUES (5,5,'BRG103',10),(6,6,'BRG078',5),(7,7,'BRG054',5),(8,8,'BRG010',35),(9,8,'BRG007',5),(10,9,'BRG078',15);
 /*!40000 ALTER TABLE `po_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -318,7 +324,7 @@ CREATE TABLE `purchase_orders` (
   CONSTRAINT `purchase_orders_ibfk_1` FOREIGN KEY (`id_supplier`) REFERENCES `suppliers` (`id_supplier`),
   CONSTRAINT `purchase_orders_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`),
   CONSTRAINT `purchase_orders_ibfk_3` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -327,7 +333,7 @@ CREATE TABLE `purchase_orders` (
 
 LOCK TABLES `purchase_orders` WRITE;
 /*!40000 ALTER TABLE `purchase_orders` DISABLE KEYS */;
-INSERT INTO `purchase_orders` VALUES (1,'PO-2025-001','2025-07-10',1,2,'Selesai Diterima','Approved',1,'2025-11-07 10:02:59',''),(2,'PO-2025-002','2025-07-12',2,2,'Selesai Diterima','Approved',1,'2025-11-07 10:02:56',''),(3,'PO-20250714-180547','2025-07-14',27,2,'Selesai Diterima','Approved',1,'2025-11-07 10:02:53',''),(4,'PO-20250714-180622','2025-07-16',21,2,'Selesai Diterima','Approved',1,'2025-11-07 10:02:46',''),(5,'PO-20250714-180639','2025-07-16',9,2,'Selesai Diterima','Approved',1,'2025-11-07 10:02:49',''),(6,'PO-20250714-181605','2025-07-19',12,4,'Selesai Diterima','Approved',1,'2025-11-07 10:02:43',''),(7,'PO-20250715-125931','2025-08-08',7,1,'Selesai Diterima','Approved',1,'2025-11-07 10:02:22',''),(8,'PO-20250715-130014','2025-08-16',12,1,'Selesai Diterima','Approved',1,'2025-11-07 10:01:48',''),(9,'PO-20250715-130255','2025-09-04',16,1,'Selesai Diterima','Approved',1,'2025-11-07 10:01:41',''),(10,'PO-20251107-020513','2025-11-07',20,4,'Selesai Diterima','Approved',1,'2025-11-07 10:14:35',''),(11,'PO-20251107-021508','2025-11-07',24,4,'Dibatalkan','Declined',1,'2025-11-07 10:15:47','Barang sudah ada banyak'),(12,'PO-20251107-081852','2025-11-07',25,4,'Dibatalkan','Declined',1,'2025-11-07 16:21:49','Tidak perlu memesan, karena stok menumpuk'),(13,'PO-20251107-083125','2025-11-07',28,4,'Menunggu Penerimaan','Approved',1,'2025-11-07 16:33:06','');
+INSERT INTO `purchase_orders` VALUES (5,'PO-20251107-104353','2025-11-07',20,4,'Selesai Diterima','Approved',1,'2025-11-08 12:23:40',''),(6,'PO-20251108-044552','2025-11-08',18,4,'Selesai Diterima','Approved',1,'2025-11-08 12:49:44','Oke terima saja'),(7,'PO-20251108-044611','2025-11-08',31,4,'Selesai Diterima','Approved',1,'2025-11-08 12:48:22','Sudah diacc'),(8,'PO-20251109-032556','2025-11-09',9,4,'Menunggu Penerimaan','Approved',1,'2025-11-09 11:29:10','Tolong diperiksa jika sudah sampai'),(9,'PO-20251109-032708','2025-11-10',15,4,'Menunggu Penerimaan','Approved',1,'2025-11-09 11:28:49','Tambahkan waktu kedatangan');
 /*!40000 ALTER TABLE `purchase_orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -394,4 +400,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-07 17:08:28
+-- Dump completed on 2025-11-10  9:52:40

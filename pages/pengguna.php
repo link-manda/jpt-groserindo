@@ -4,7 +4,7 @@
 
 require_once 'includes/table_helper.php';
 
-if ($_SESSION['role'] !== 'Admin') {
+if ($_SESSION['role'] !== 'Admin' && $_SESSION['role'] !== 'Supervisor') {
     echo "<h1 class='text-2xl font-bold text-red-600'>Akses Ditolak</h1>";
     echo "<p class='text-gray-600'>Anda tidak memiliki izin untuk mengakses halaman ini.</p>";
     return;
@@ -132,6 +132,7 @@ $url_params = ['page' => 'pengguna', 'search' => $search, 'limit' => $limit, 'so
                         <option value="Admin">Admin</option>
                         <option value="Staf Purchasing">Staf Purchasing</option>
                         <option value="Staf Penerimaan">Staf Penerimaan</option>
+                        <option value="Supervisor">Supervisor</option>
                     </select>
                 </div>
                 <div class="mt-6 flex justify-end">

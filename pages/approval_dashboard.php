@@ -102,17 +102,17 @@ try {
             <button onclick="showTab('po')" id="tab-po" 
                 class="tab-button flex-1 py-4 px-6 text-center border-b-2 border-blue-500 font-medium text-blue-600 transition-colors">
                 <i class="fa-solid fa-file-invoice mr-2"></i>
-                Purchase Orders (<?php echo count($pending_po); ?>)
+                Purchase Orders <span class="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 inset-ring inset-ring-blue-400/30"><?php echo count($pending_po); ?></span>
             </button>
             <button onclick="showTab('bk')" id="tab-bk" 
                 class="tab-button flex-1 py-4 px-6 text-center border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors">
                 <i class="fa-solid fa-box-open mr-2"></i>
-                Barang Keluar (<?php echo count($pending_bk); ?>)
+                Barang Keluar <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 inset-ring inset-ring-red-400/20"><?php echo count($pending_bk); ?></span>
             </button>
             <button onclick="showTab('bm')" id="tab-bm" 
                 class="tab-button flex-1 py-4 px-6 text-center border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors">
                 <i class="fa-solid fa-truck-ramp-box mr-2"></i>
-                Barang Masuk (<?php echo count($pending_bm); ?>)
+                Barang Masuk <span class="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 inset-ring inset-ring-green-400/20"><?php echo count($pending_bm); ?></span>
             </button>
         </nav>
     </div>
