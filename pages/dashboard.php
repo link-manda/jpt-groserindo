@@ -32,7 +32,7 @@ $barang_stok_sedikit = $stmt_stok_sedikit->fetchAll(PDO::FETCH_ASSOC);
 <!-- KPI Cards -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
     <!-- Card PO Menunggu Penerimaan -->
-    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+    <a href="?page=laporan-penerimaan" class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer block">
         <div class="flex items-center">
             <div class="bg-yellow-100 text-yellow-600 p-4 rounded-full">
                 <i class="fa-solid fa-clock fa-2x"></i>
@@ -43,10 +43,10 @@ $barang_stok_sedikit = $stmt_stok_sedikit->fetchAll(PDO::FETCH_ASSOC);
                 <p class="text-xs text-gray-400 mt-1">Memerlukan tindakan</p>
             </div>
         </div>
-    </div>
+    </a>
 
     <!-- Card PO Bulan Ini -->
-    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+    <a href="?page=laporan-po" class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer block">
         <div class="flex items-center">
             <div class="bg-blue-100 text-blue-600 p-4 rounded-full">
                 <i class="fa-solid fa-file-invoice fa-2x"></i>
@@ -57,10 +57,10 @@ $barang_stok_sedikit = $stmt_stok_sedikit->fetchAll(PDO::FETCH_ASSOC);
                 <p class="text-xs text-gray-400 mt-1">Total pembelian</p>
             </div>
         </div>
-    </div>
+    </a>
 
     <!-- Card Critical Stock Alert -->
-    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+    <a href="?page=laporan-stok" class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer block">
         <div class="flex items-center">
             <div class="bg-red-100 text-red-600 p-4 rounded-full">
                 <i class="fa-solid fa-triangle-exclamation fa-2x"></i>
@@ -71,7 +71,7 @@ $barang_stok_sedikit = $stmt_stok_sedikit->fetchAll(PDO::FETCH_ASSOC);
                 <p class="text-xs text-gray-400 mt-1">Stok < 30 unit</p>
             </div>
         </div>
-    </div>
+    </a>
 </div>
 
 <!-- Tabel Stok Barang Segera Habis -->
