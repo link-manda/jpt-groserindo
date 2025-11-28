@@ -14,6 +14,34 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Fungsi untuk mendapatkan halaman default berdasarkan role
+function get_default_page($role)
+{
+    switch ($role) {
+        case 'Admin':
+        case 'Staf Purchasing':
+        case 'Staf Penerimaan':
+            return 'dashboard';
+        case 'Supervisor':
+            return 'pengguna';
+        default:
+            return 'unauthorized';
+    }
+}
+
+// Mengambil halaman aktif saat ini dari URL
+$page = isset($_GET['page']) ? $_GET['page'] : get_default_page($_SESSION['role']);
+
+// Validasi role untuk halaman dashboard
+if ($page == 'dashboard') {
+    $allowed_roles = ['Admin', 'Staf Purchasing', 'Staf Penerimaan'];
+    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
+        // Redirect ke halaman utama atau tampilkan error
+        header("Location: index.php?page=unauthorized");
+        exit();
+    }
+}
+
 // Memasukkan file koneksi database
 require_once 'config/database.php';
 
@@ -21,7 +49,6 @@ require_once 'config/database.php';
 include 'includes/header.php';
 
 // Mengambil judul halaman untuk ditampilkan di header mobile
-$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
 $page_title = ucwords(str_replace('-', ' ', $page));
 
 ?>
@@ -48,7 +75,7 @@ $page_title = ucwords(str_replace('-', ' ', $page));
                 <div id="page-content" class="container mx-auto">
                     <?php
                     // Logika routing sederhana
-                    $allowed_pages = ['dashboard', 'barang', 'supplier', 'purchase-order', 'po-detail', 'delivery-order', 'barang-keluar', 'bk-detail', 'laporan', 'laporan-stok', 'laporan-po', 'laporan-penerimaan', 'laporan-barang-keluar', 'pengguna', 'approval-dashboard', 'bm-detail'];
+                    $allowed_pages = ['dashboard', 'barang', 'supplier', 'purchase-order', 'po-detail', 'delivery-order', 'barang-keluar', 'bk-detail', 'laporan', 'laporan-stok', 'laporan-po', 'laporan-penerimaan', 'laporan-barang-keluar', 'pengguna', 'approval-dashboard', 'bm-detail', 'unauthorized'];
 
                     if (in_array($page, $allowed_pages)) {
                         $page_file = "pages/" . str_replace('-', '_', $page) . ".php";

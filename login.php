@@ -34,8 +34,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
         $_SESSION['role'] = $user['role'];
 
-        // Arahkan ke halaman utama
-        header("Location: index.php?page=dashboard");
+        // Fungsi untuk mendapatkan halaman default berdasarkan role
+        function get_default_page($role)
+        {
+            switch ($role) {
+                case 'Admin':
+                case 'Staf Purchasing':
+                case 'Staf Penerimaan':
+                    return 'dashboard';
+                case 'Supervisor':
+                    return 'pengguna';
+                default:
+                    return 'unauthorized';
+            }
+        }
+
+        // Arahkan ke halaman default berdasarkan role
+        $default_page = get_default_page($user['role']);
+        header("Location: index.php?page=$default_page");
         exit();
     } else {
         // Jika gagal, tampilkan pesan error
