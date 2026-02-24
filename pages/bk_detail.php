@@ -14,7 +14,7 @@ $id_bk = $_GET['id'];
 
 // 1. Mengambil data utama transaksi dan user pembuat
 $sql_main = "
-    SELECT bk.*, 
+    SELECT bk.*,
            u.nama_lengkap AS nama_pencatat,
            approver.nama_lengkap AS approved_by_name
     FROM barang_keluar bk
@@ -37,8 +37,8 @@ if (!$bk) {
 
 // 2. Mengambil daftar barang yang ada di transaksi tersebut
 $sql_items = "
-    SELECT bkd.id_bk_detail, b.id_barang, b.nama_barang, b.merek, 
-           bkd.jumlah_keluar, b.stok AS stok_saat_ini
+    SELECT bkd.id_bk_detail, b.id_barang, b.nama_barang, b.merek,
+           bkd.jumlah_keluar, bkd.satuan, b.stok AS stok_saat_ini
     FROM barang_keluar_detail bkd
     JOIN barang b ON bkd.id_barang = b.id_barang
     WHERE bkd.id_bk = ?
@@ -201,7 +201,7 @@ $status_approval = $bk['status_approval'] ?? 'Pending';
                         <td class="px-4 py-3 text-sm"><?php echo $index + 1; ?></td>
                         <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($it['nama_barang']); ?></td>
                         <td class="px-4 py-3 text-sm text-gray-600"><?php echo htmlspecialchars($it['merek'] ?? '-'); ?></td>
-                        <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($it['jumlah_keluar'], 0, ',', '.'); ?></td>
+                        <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($it['jumlah_keluar'], 0, ',', '.') . ' ' . htmlspecialchars($it['satuan'] ?? 'PCS'); ?></td>
                         <td class="px-4 py-3 text-center text-sm">
                             <?php
                             if ($approval === 'Approved') {
@@ -227,7 +227,7 @@ $status_approval = $bk['status_approval'] ?? 'Pending';
 
     <!-- Footer Actions -->
     <div class="bg-gray-50 px-6 py-4 border-t">
-        <a href="index.php?page=barang-keluar" 
+        <a href="index.php?page=barang-keluar"
            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors inline-flex items-center">
             <i class="fa-solid fa-arrow-left mr-2"></i>Kembali
         </a>

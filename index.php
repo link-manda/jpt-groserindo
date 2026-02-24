@@ -20,9 +20,9 @@ function get_default_page($role)
     switch ($role) {
         case 'Direktur':
         case 'Staf Purchasing':
-        case 'Staf Penerimaan':
+        case 'Staf Gudang':
             return 'dashboard';
-        case 'Supervisor':
+        case 'Administrator IT':
             return 'pengguna';
         default:
             return 'unauthorized';
@@ -34,7 +34,7 @@ $page = isset($_GET['page']) ? $_GET['page'] : get_default_page($_SESSION['role'
 
 // Validasi role untuk halaman dashboard
 if ($page == 'dashboard') {
-    $allowed_roles = ['Direktur', 'Staf Purchasing', 'Staf Penerimaan'];
+    $allowed_roles = ['Direktur', 'Staf Purchasing', 'Staf Gudang'];
     if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
         // Redirect ke halaman utama atau tampilkan error
         header("Location: index.php?page=unauthorized");

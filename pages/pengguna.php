@@ -4,7 +4,8 @@
 
 require_once 'includes/table_helper.php';
 
-if ($_SESSION['role'] !== 'Supervisor') {
+// Hanya bisa diakses oleh Supervisor -> Administrator IT
+if ($_SESSION['role'] !== 'Direktur' && $_SESSION['role'] !== 'Administrator IT') {
     echo "<h1 class='text-2xl font-bold text-red-600'>Akses Ditolak</h1>";
     echo "<p class='text-gray-600'>Anda tidak memiliki izin untuk mengakses halaman ini.</p>";
     return;
@@ -129,10 +130,10 @@ $url_params = ['page' => 'pengguna', 'search' => $search, 'limit' => $limit, 'so
                 <div class="mb-4">
                     <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                     <select id="role" name="role" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-                        <option value="Admin">Admin</option>
+                        <option value="Direktur">Direktur</option>
                         <option value="Staf Purchasing">Staf Purchasing</option>
-                        <option value="Staf Penerimaan">Staf Penerimaan</option>
-                        <option value="Supervisor">Supervisor</option>
+                        <option value="Staf Gudang">Staf Gudang</option>
+                        <option value="Administrator IT">Administrator IT</option>
                     </select>
                 </div>
                 <div class="mt-6 flex justify-end">

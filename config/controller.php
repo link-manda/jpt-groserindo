@@ -81,12 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
                 ");
                 $stmt->execute([$user_id, $notes, $id]);
 
-                // Notifikasi ke Staf Penerimaan (type enum: 'PO')
+                // Notifikasi ke Staf Gudang (type enum: 'PO')
                 $stmt_po = $pdo->prepare("SELECT kode_po FROM purchase_orders WHERE id_po = ?");
                 $stmt_po->execute([$id]);
                 $po_data = $stmt_po->fetch(PDO::FETCH_ASSOC);
 
-                $stmt_staff = $pdo->query("SELECT id_user FROM users WHERE role = 'Staf Penerimaan'");
+                $stmt_staff = $pdo->query("SELECT id_user FROM users WHERE role = 'Staf Gudang'");
                 $stmt_notif = $pdo->prepare("
                     INSERT INTO notifications (type, reference_id, id_user_target, title, message)
                     VALUES ('PO', ?, ?, ?, ?)
@@ -218,6 +218,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $merek = $_POST['merek'];
         $stok = $_POST['stok'];
         $lokasi = $_POST['lokasi'];
+        $satuan = !empty($_POST['satuan']) ? $_POST['satuan'] : 'PCS';
+        $id_supplier = !empty($_POST['id_supplier']) ? $_POST['id_supplier'] : null;
         $upload_dir = 'uploads/barang/';
 
         // Memulai transaksi database untuk memastikan semua operasi (data & gambar) berhasil
@@ -229,15 +231,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 if ($stmt_check->fetchColumn() > 0) {
                     throw new Exception('Gagal! ID Barang sudah ada.');
                 }
-                $sql = "INSERT INTO barang (id_barang, nama_barang, merek, stok, lokasi) VALUES (?, ?, ?, ?, ?)";
+                $sql = "INSERT INTO barang (id_barang, nama_barang, merek, stok, lokasi, id_supplier, satuan) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute([$id_barang, $nama_barang, $merek, $stok, $lokasi]);
+                $stmt->execute([$id_barang, $nama_barang, $merek, $stok, $lokasi, $id_supplier, $satuan]);
                 $_SESSION['notification'] = ['type' => 'success', 'message' => 'Data barang berhasil ditambahkan.'];
 
             } elseif ($action === 'edit') {
-                $sql = "UPDATE barang SET nama_barang = ?, merek = ?, stok = ?, lokasi = ? WHERE id_barang = ?";
+                $sql = "UPDATE barang SET nama_barang = ?, merek = ?, stok = ?, lokasi = ?, id_supplier = ?, satuan = ? WHERE id_barang = ?";
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute([$nama_barang, $merek, $stok, $lokasi, $id_barang]);
+                $stmt->execute([$nama_barang, $merek, $stok, $lokasi, $id_supplier, $satuan, $id_barang]);
                 $_SESSION['notification'] = ['type' => 'success', 'message' => 'Data barang berhasil diperbarui.'];
 
                 if (isset($_POST['hapus_gambar'])) {
@@ -310,7 +312,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     // --- AKSI UNTUK MANAJEMEN PENGGUNA ---
     if ($page === 'pengguna') {
-        if ($_SESSION['role'] === 'Supervisor') {
+        if ($_SESSION['role'] === 'Administrator IT') {
             $nama_lengkap = $_POST['nama_lengkap'];
             $username = $_POST['username'];
             $role = $_POST['role'];
@@ -351,6 +353,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $id_supplier = $_POST['id_supplier'];
             $id_barang_list = $_POST['id_barang'];
             $jumlah_list = $_POST['jumlah'];
+            $satuan_list = $_POST['satuan'];
             $user_id = $_SESSION['user_id'];
 
             $pdo->beginTransaction();
@@ -361,13 +364,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt_po->execute([$kode_po, $tanggal_po, $id_supplier, $user_id]);
                 $id_po_baru = $pdo->lastInsertId();
 
-                $sql_detail = "INSERT INTO po_details (id_po, id_barang, jumlah_pesan) VALUES (?, ?, ?)";
+                $sql_detail = "INSERT INTO po_details (id_po, id_barang, jumlah_pesan, satuan) VALUES (?, ?, ?, ?)";
                 $stmt_detail = $pdo->prepare($sql_detail);
 
                 foreach ($id_barang_list as $index => $id_barang) {
                     $jumlah = $jumlah_list[$index];
+                    $satuan = isset($satuan_list[$index]) ? $satuan_list[$index] : 'PCS';
                     if (!empty($id_barang) && $jumlah > 0) {
-                        $stmt_detail->execute([$id_po_baru, $id_barang, $jumlah]);
+                        $stmt_detail->execute([$id_po_baru, $id_barang, $jumlah, $satuan]);
                     }
                 }
 
@@ -430,11 +434,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $id_bm_baru = $pdo->lastInsertId();
 
                 // 3. Insert detail barang masuk
-                $sql_detail = "INSERT INTO barang_masuk_detail (id_bm, id_barang, jumlah_masuk) VALUES (?, ?, ?)";
+                $sql_detail = "INSERT INTO barang_masuk_detail (id_bm, id_barang, jumlah_masuk, satuan) VALUES (?, ?, ?, ?)";
                 $stmt_detail = $pdo->prepare($sql_detail);
 
                 foreach ($items_to_receive as $item) {
-                    $stmt_detail->execute([$id_bm_baru, $item['id_barang'], $item['jumlah_pesan']]);
+                    $stmt_detail->execute([$id_bm_baru, $item['id_barang'], $item['jumlah_pesan'], $item['satuan']]);
                 }
 
                 // 4. Kirim notifikasi ke Direktur
@@ -518,12 +522,17 @@ if ($page === 'barang-keluar') {
             $id_bk_baru = $pdo->lastInsertId();
 
             // Simpan detail
-            $sql_detail = "INSERT INTO barang_keluar_detail (id_bk, id_barang, jumlah_keluar) VALUES (?, ?, ?)";
+            $sql_detail = "INSERT INTO barang_keluar_detail (id_bk, id_barang, jumlah_keluar, satuan) VALUES (?, ?, ?, ?)";
             $stmt_detail = $pdo->prepare($sql_detail);
+            $stmt_get_satuan = $pdo->prepare("SELECT satuan FROM barang WHERE id_barang = ?");
             foreach ($id_barang_list as $index => $id_barang) {
                 $jumlah_keluar = (int)$jumlah_list[$index];
                 if (empty($id_barang) || $jumlah_keluar <= 0) continue;
-                $stmt_detail->execute([$id_bk_baru, $id_barang, $jumlah_keluar]);
+
+                $stmt_get_satuan->execute([$id_barang]);
+                $satuan = $stmt_get_satuan->fetchColumn();
+
+                $stmt_detail->execute([$id_bk_baru, $id_barang, $jumlah_keluar, $satuan]);
             }
 
             // Kirim notifikasi ke Direktur
@@ -560,7 +569,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
         exit();
     }
 
-    if ($page === 'pengguna' && $_SESSION['role'] === 'Supervisor') {
+    // Hanya Administrator IT yang bisa mengelola pengguna (direktur sudah ada di halaman lain, tapi kita biarkan supervisor saja dkk)
+    if ($page === 'pengguna' && $_SESSION['role'] === 'Administrator IT') {
         if ($id != $_SESSION['user_id']) { // Tidak bisa hapus diri sendiri
             $sql = "DELETE FROM users WHERE id_user = ?";
             $stmt = $pdo->prepare($sql);

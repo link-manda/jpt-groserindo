@@ -40,9 +40,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             switch ($role) {
                 case 'Direktur':
                 case 'Staf Purchasing':
-                case 'Staf Penerimaan':
+                case 'Staf Gudang':
                     return 'dashboard';
-                case 'Supervisor':
+                case 'Administrator IT':
                     return 'pengguna';
                 default:
                     return 'unauthorized';

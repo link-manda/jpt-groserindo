@@ -234,16 +234,19 @@ $url_params = ['page' => 'purchase-order', 'search' => $search, 'limit' => $limi
 <!-- Template untuk baris item barang (digunakan oleh JavaScript) -->
 <template id="po-item-template">
     <div class="grid grid-cols-12 gap-4 items-center mb-2 po-item-row">
-        <div class="col-span-7">
-            <select name="id_barang[]" id="id_barang" class="w-full px-3 py-2 border border-gray-300 rounded-md searchable-dropdown" required>
-                <option value="">-- Pilih Barang --</option>
+        <div class="col-span-6">
+            <select name="id_barang[]" class="w-full px-3 py-2 border border-gray-300 rounded-md item-barang-select" required>
+                <option value="" data-satuan="">-- Pilih Barang --</option>
                 <?php foreach ($barang_list as $barang): ?>
-                    <option value="<?php echo $barang['id_barang']; ?>"><?php echo htmlspecialchars($barang['nama_barang']) . ' (Stok: ' . $barang['stok'] . ')'; ?></option>
+                    <option value="<?php echo $barang['id_barang']; ?>" data-satuan="<?php echo htmlspecialchars($barang['satuan'] ?? 'PCS'); ?>"><?php echo htmlspecialchars($barang['nama_barang']) . ' (Stok: ' . $barang['stok'] . ')'; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-span-4">
+        <div class="col-span-3">
             <input type="number" name="jumlah[]" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Jumlah" min="1" required>
+        </div>
+        <div class="col-span-2">
+            <input type="text" name="satuan[]" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 item-satuan-input" readonly placeholder="Satuan">
         </div>
         <div class="col-span-1 text-right">
             <button type="button" class="btn-remove-item text-red-500 hover:text-red-700">
@@ -282,6 +285,10 @@ $url_params = ['page' => 'purchase-order', 'search' => $search, 'limit' => $limi
             newRow.find('.item-barang-select').select2({
                 width: '100%',
                 dropdownParent: formContainer
+            }).on('change', function() {
+                const selectedOption = $(this).find('option:selected');
+                const satuan = selectedOption.data('satuan') || 'PCS';
+                $(this).closest('.po-item-row').find('.item-satuan-input').val(satuan);
             });
         };
 

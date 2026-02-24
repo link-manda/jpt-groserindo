@@ -26,7 +26,7 @@ try {
         SELECT po.*, s.nama_supplier, s.telepon, s.alamat,
                u_created.nama_lengkap as created_by_name,
                u_approved.nama_lengkap as approved_by_name
-        FROM purchase_orders po 
+        FROM purchase_orders po
         JOIN suppliers s ON po.id_supplier = s.id_supplier
         LEFT JOIN users u_created ON po.id_user = u_created.id_user
         LEFT JOIN users u_approved ON po.approved_by = u_approved.id_user
@@ -45,9 +45,9 @@ try {
 
     // Ambil detail item PO - FIXED: gunakan tabel dan kolom yang benar
     $stmt_detail = $pdo->prepare("
-        SELECT pod.*, b.nama_barang, b.merek 
-        FROM po_details pod 
-        JOIN barang b ON pod.id_barang = b.id_barang 
+        SELECT pod.*, b.nama_barang, b.merek
+        FROM po_details pod
+        JOIN barang b ON pod.id_barang = b.id_barang
         WHERE pod.id_po = ?
     ");
     $stmt_detail->execute([$id_po]);
@@ -94,7 +94,7 @@ if ($error_message) {
                 $approval_status = $po['status_approval'] ?? 'Pending';
                 $badge_class = '';
                 $icon = '';
-                
+
                 if ($approval_status === 'Approved') {
                     $badge_class = 'bg-green-500 text-white';
                     $icon = '<i class="fa-solid fa-check-circle mr-2"></i>';
@@ -113,7 +113,7 @@ if ($error_message) {
                     <?php
                     $status = $po['status'];
                     $status_class = '';
-                    
+
                     if ($status === 'Selesai Diterima') {
                         $status_class = 'bg-blue-100 text-blue-700';
                     } elseif ($status === 'Dibatalkan') {
@@ -171,7 +171,7 @@ if ($error_message) {
                         <p class="font-semibold text-gray-800"><?php echo htmlspecialchars($po['created_by_name'] ?? 'Unknown'); ?></p>
                     </div>
                 </div>
-                
+
                 <?php if (!empty($po['approved_by'])): ?>
                 <div class="flex items-start">
                     <i class="fa-solid fa-user-check text-gray-400 mt-1 mr-3 w-5"></i>
@@ -232,7 +232,7 @@ if ($error_message) {
                             <td class="px-4 py-3 text-sm"><?php echo $index + 1; ?></td>
                             <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($detail['nama_barang']); ?></td>
                             <td class="px-4 py-3 text-sm text-gray-600"><?php echo htmlspecialchars($detail['merek'] ?? '-'); ?></td>
-                            <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_pesan'], 0, ',', '.'); ?></td>
+                            <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_pesan'], 0, ',', '.') . ' ' . htmlspecialchars($detail['satuan'] ?? 'PCS'); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -262,13 +262,13 @@ if ($error_message) {
 
     <!-- Action Buttons -->
     <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t flex-wrap gap-3">
-        <a href="index.php?page=purchase-order" 
+        <a href="index.php?page=purchase-order"
            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors inline-flex items-center">
             <i class="fa-solid fa-arrow-left mr-2"></i>Kembali
         </a>
-        
-        <?php if ($approval_status === 'Approved' && $po['status'] === 'Menunggu Penerimaan' && $_SESSION['role'] === 'Staf Penerimaan'): ?>
-        <a href="index.php?page=delivery-order&po_id=<?php echo $id_po; ?>" 
+
+        <?php if ($approval_status === 'Approved' && $po['status'] === 'Menunggu Penerimaan' && $_SESSION['role'] === 'Staf Gudang'): ?>
+        <a href="index.php?page=delivery-order&po_id=<?php echo $id_po; ?>"
            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors inline-flex items-center">
             <i class="fa-solid fa-truck mr-2"></i>Terima Barang
         </a>

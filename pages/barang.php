@@ -15,12 +15,12 @@ $sort_columns = ['id_barang', 'nama_barang', 'merek', 'lokasi', 'stok'];
 $sort_by = isset($_GET['sort']) && in_array($_GET['sort'], $sort_columns) ? $_GET['sort'] : 'nama_barang';
 $order = isset($_GET['order']) && strtolower($_GET['order']) == 'desc' ? 'DESC' : 'ASC';
 $search = isset($_GET['search']) ? $_GET['search'] : '';
-$sql_base = "FROM barang b";
+$sql_base = "FROM barang b LEFT JOIN suppliers s ON b.id_supplier = s.id_supplier";
 $params = [];
 if (!empty($search)) {
-    $sql_base .= " WHERE (b.nama_barang LIKE ? OR b.merek LIKE ? OR b.id_barang LIKE ?)";
+    $sql_base .= " WHERE (b.nama_barang LIKE ? OR b.merek LIKE ? OR b.id_barang LIKE ? OR s.nama_supplier LIKE ?)";
     $search_param = "%{$search}%";
-    $params = [$search_param, $search_param, $search_param];
+    $params = [$search_param, $search_param, $search_param, $search_param];
 }
 $count_sql = "SELECT COUNT(b.id_barang) " . $sql_base;
 $stmt_count = $pdo->prepare($count_sql);
@@ -28,13 +28,18 @@ $stmt_count->execute($params);
 $total_records = $stmt_count->fetchColumn();
 $total_pages = ceil($total_records / $limit);
 $data_sql = "
-    SELECT b.*,
+    SELECT b.*, s.nama_supplier,
            (SELECT g.nama_file FROM gambar_barang g WHERE g.id_barang = b.id_barang ORDER BY g.id_gambar ASC LIMIT 1) as gambar_utama,
            (SELECT COUNT(*) FROM gambar_barang g WHERE g.id_barang = b.id_barang) as jumlah_gambar
     " . $sql_base . " ORDER BY b.{$sort_by} {$order} LIMIT {$limit} OFFSET {$offset}";
 $stmt = $pdo->prepare($data_sql);
 $stmt->execute($params);
 $barang_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Ambil list supplier untuk form
+$stmt_suppliers = $pdo->query("SELECT id_supplier, nama_supplier FROM suppliers ORDER BY nama_supplier ASC");
+$supplier_list = $stmt_suppliers->fetchAll(PDO::FETCH_ASSOC);
+
 $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort' => $sort_by, 'order' => $order, 'p' => $page];
 ?>
 
@@ -71,6 +76,9 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                     <?php generate_sort_link('merek', 'Merek', $url_params); ?>
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Supplier
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <?php generate_sort_link('lokasi', 'Lokasi', $url_params); ?>
                 </th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -102,15 +110,18 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['id_barang']); ?></td>
                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['nama_barang']); ?></td>
                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['merek']); ?></td>
+                    <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['nama_supplier'] ?? '-'); ?></td>
                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['lokasi']); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right font-semibold"><?php echo htmlspecialchars($barang['stok']); ?></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right font-semibold"><?php echo htmlspecialchars($barang['stok']) . ' ' . htmlspecialchars($barang['satuan'] ?? 'PCS'); ?></td>
                     <?php if ($can_edit_delete): ?>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <button class="btn-edit-barang text-blue-500 hover:text-blue-700 mr-3"
                                 data-id="<?php echo htmlspecialchars($barang['id_barang']); ?>"
                                 data-nama="<?php echo htmlspecialchars($barang['nama_barang']); ?>"
                                 data-merek="<?php echo htmlspecialchars($barang['merek']); ?>"
+                                data-supplier="<?php echo htmlspecialchars($barang['id_supplier'] ?? ''); ?>"
                                 data-stok="<?php echo htmlspecialchars($barang['stok']); ?>"
+                                data-satuan="<?php echo htmlspecialchars($barang['satuan'] ?? 'PCS'); ?>"
                                 data-lokasi="<?php echo htmlspecialchars($barang['lokasi']); ?>">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>
@@ -157,16 +168,24 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
             </button>
         </div>
         <div class="mt-5">
-            <p class="text-sm text-gray-600 mb-4">
-                1. Unduh template file Excel (.xlsx) untuk memastikan format data sudah benar.
+            <p class="text-sm text-gray-600 mb-2">
+                1. Unduh template file Excel (.xlsx) terbaru untuk memastikan format data sudah benar.
             </p>
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4 rounded-md text-sm text-blue-700">
+                <strong>Penting (Format Baru):</strong> Urutan kolom harus tepat seperti berikut:
+                <br><code>ID Barang | Nama Barang | Merek | ID Supplier | Satuan | Stok Awal | Lokasi</code>
+                <ul class="list-disc list-inside mt-1 ml-2 text-xs">
+                    <li><span class="font-semibold">ID Supplier:</span> Boleh kosong, atau isi dengan ID supplier terdaftar.</li>
+                    <li><span class="font-semibold">Satuan:</span> Diwajibkan (contoh: PCS, BOX, ROLL). Default = PCS.</li>
+                </ul>
+            </div>
             <!-- PEMBARUAN: Link download diubah -->
-            <a href="download_template.php?type=barang" class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 mb-6">
+            <a href="download_template.php?type=barang" class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 mb-6 font-semibold">
                 <i class="fa-solid fa-download"></i> Unduh Template (.xlsx)
             </a>
             <hr class="my-4">
             <p class="text-sm text-gray-600 mb-4">
-                2. Pilih file Excel yang sudah diisi sesuai template.
+                2. Pilih file Excel yang sudah diisi sesuai dengan template tersebut.
             </p>
             <form action="upload_handler.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="import_type" value="barang">
@@ -206,6 +225,15 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                     <label for="merek" class="block text-sm font-medium text-gray-700 mb-1">Merek</label>
                     <input type="text" id="merek" name="merek" class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
+                <div class="mb-4">
+                    <label for="id_supplier" class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
+                    <select id="id_supplier" name="id_supplier" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="">-- Pilih Supplier --</option>
+                        <?php foreach ($supplier_list as $sup): ?>
+                            <option value="<?php echo $sup['id_supplier']; ?>"><?php echo htmlspecialchars($sup['nama_supplier']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="stok" class="block text-sm font-medium text-gray-700 mb-1">Stok</label>
@@ -215,6 +243,10 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                         <label for="lokasi" class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
                         <input type="text" id="lokasi" name="lokasi" class="w-full px-3 py-2 border border-gray-300 rounded-md">
                     </div>
+                </div>
+                <div class="mb-4">
+                    <label for="satuan" class="block text-sm font-medium text-gray-700 mb-1">Satuan</label>
+                    <input type="text" id="satuan" name="satuan" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: PCS, KG, METER" value="PCS" required>
                 </div>
                 <hr class="my-6">
 

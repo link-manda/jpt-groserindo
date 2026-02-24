@@ -34,9 +34,13 @@ if (isset($_FILES['excel_file']) && isset($_POST['import_type'])) {
             }
 
             if ($import_type === 'barang') {
-                $sql = "INSERT INTO barang (id_barang, nama_barang, merek, stok, lokasi) VALUES (?, ?, ?, ?, ?)";
+                $sql = "INSERT INTO barang (id_barang, nama_barang, merek, id_supplier, satuan, stok, lokasi) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute([$row[0], $row[1], $row[2], (int)$row[3], $row[4]]);
+                // Handle nullable id_supplier
+                $id_supplier = (isset($row[3]) && trim($row[3]) !== '') ? $row[3] : null;
+                // Handle nullable satuan, default 'PCS'
+                $satuan = (isset($row[4]) && trim($row[4]) !== '') ? $row[4] : 'PCS';
+                $stmt->execute([$row[0], $row[1], $row[2], $id_supplier, $satuan, (int)$row[5], $row[6]]);
             } elseif ($import_type === 'supplier') {
                 $sql = "INSERT INTO suppliers (nama_supplier, alamat, telepon) VALUES (?, ?, ?)";
                 $stmt = $pdo->prepare($sql);

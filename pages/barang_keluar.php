@@ -5,7 +5,7 @@
 require_once 'includes/table_helper.php';
 
 $user_role = $_SESSION['role'];
-$can_create = ($user_role == 'Direktur' || $user_role == 'Staf Penerimaan');
+$can_create = ($user_role == 'Direktur' || $user_role == 'Staf Gudang');
 
 // Mengambil data barang untuk dropdown
 $stmt_barang = $pdo->query("SELECT * FROM barang WHERE stok > 0 ORDER BY nama_barang ASC");
@@ -126,16 +126,19 @@ $url_params = ['page' => 'barang-keluar', 'search' => $search, 'limit' => $limit
 <!-- Template untuk baris item barang -->
 <template id="bk-item-template">
     <div class="grid grid-cols-12 gap-4 items-center mb-2 bk-item-row">
-        <div class="col-span-7">
+        <div class="col-span-6">
             <select name="id_barang[]" class="w-full px-3 py-2 border border-gray-300 rounded-md item-barang-select" required>
-                <option value="">-- Pilih Barang --</option>
+                <option value="" data-satuan="">-- Pilih Barang --</option>
                 <?php foreach ($barang_list as $barang): ?>
-                    <option value="<?php echo $barang['id_barang']; ?>"><?php echo htmlspecialchars($barang['nama_barang']) . ' (Stok: ' . $barang['stok'] . ')'; ?></option>
+                    <option value="<?php echo $barang['id_barang']; ?>" data-satuan="<?php echo htmlspecialchars($barang['satuan'] ?? 'PCS'); ?>"><?php echo htmlspecialchars($barang['nama_barang']) . ' (Stok: ' . $barang['stok'] . ')'; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-span-4">
+        <div class="col-span-3">
             <input type="number" name="jumlah[]" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Jumlah Dikeluarkan" min="1" required>
+        </div>
+        <div class="col-span-2">
+            <input type="text" name="satuan[]" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 item-satuan-input" readonly placeholder="Satuan">
         </div>
         <div class="col-span-1 text-right">
             <button type="button" class="btn-remove-item-bk text-red-500 hover:text-red-700">
@@ -162,6 +165,10 @@ $url_params = ['page' => 'barang-keluar', 'search' => $search, 'limit' => $limit
             newRow.find('.item-barang-select').select2({
                 width: '100%',
                 dropdownParent: formContainer
+            }).on('change', function() {
+                const selectedOption = $(this).find('option:selected');
+                const satuan = selectedOption.data('satuan') || 'PCS';
+                $(this).closest('.bk-item-row').find('.item-satuan-input').val(satuan);
             });
         };
 

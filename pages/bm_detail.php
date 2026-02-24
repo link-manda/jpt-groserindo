@@ -15,7 +15,7 @@ $id_bm = (int)$_GET['id'];
 try {
     // FIXED: Ambil data barang masuk dengan JOIN yang benar
     $stmt_bm = $pdo->prepare("
-        SELECT bm.*, 
+        SELECT bm.*,
                po.kode_po,
                s.nama_supplier, s.alamat as supplier_alamat, s.telepon as supplier_telepon,
                u.nama_lengkap as penerima_nama,
@@ -40,7 +40,7 @@ try {
 
     // Ambil detail barang
     $stmt_detail = $pdo->prepare("
-        SELECT bmd.id_bm_detail, bmd.id_barang, bmd.jumlah_masuk,
+        SELECT bmd.id_bm_detail, bmd.id_barang, bmd.jumlah_masuk, bmd.satuan,
                b.nama_barang, b.merek, b.stok as stok_saat_ini
         FROM barang_masuk_detail bmd
         JOIN barang b ON bmd.id_barang = b.id_barang
@@ -82,9 +82,9 @@ try {
             <div class="text-right">
                 <?php
                 $status = $bm['status_approval'];
-                $badge_class = $status === 'Approved' ? 'bg-green-500 text-white' : 
+                $badge_class = $status === 'Approved' ? 'bg-green-500 text-white' :
                               ($status === 'Declined' ? 'bg-red-500 text-white' : 'bg-yellow-500 text-white');
-                $icon = $status === 'Approved' ? 'fa-check-circle' : 
+                $icon = $status === 'Approved' ? 'fa-check-circle' :
                        ($status === 'Declined' ? 'fa-times-circle' : 'fa-clock');
                 ?>
                 <span class="inline-block px-4 py-2 rounded-lg font-semibold text-sm <?php echo $badge_class; ?>">
@@ -210,7 +210,7 @@ try {
                         <td class="px-4 py-3 text-sm"><?php echo $index + 1; ?></td>
                         <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($detail['nama_barang']); ?></td>
                         <td class="px-4 py-3 text-sm text-gray-600"><?php echo htmlspecialchars($detail['merek'] ?? '-'); ?></td>
-                        <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_masuk'], 0, ',', '.'); ?></td>
+                        <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_masuk'], 0, ',', '.') . ' ' . htmlspecialchars($detail['satuan'] ?? 'PCS'); ?></td>
                         <td class="px-4 py-3 text-center text-sm">
                             <?php
                             if ($bm['status_approval'] === 'Approved') {
@@ -236,7 +236,7 @@ try {
 
     <!-- Footer Actions -->
     <div class="bg-gray-50 px-6 py-4 border-t">
-        <a href="index.php?page=delivery-order" 
+        <a href="index.php?page=delivery-order"
            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors inline-flex items-center">
             <i class="fa-solid fa-arrow-left mr-2"></i>Kembali
         </a>
