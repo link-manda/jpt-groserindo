@@ -14,8 +14,8 @@ require_once 'database.php';
 // ===== HELPER FUNCTIONS - PINDAHKAN KE ATAS =====
 // KIRIM NOTIFIKASI KE DIREKTUR (Helper Function)
 function sendApprovalNotification($pdo, $type, $reference_id, $title, $message) {
-    // Ambil ID Direktur (asumsi role = 'Admin' adalah Direktur, atau sesuaikan)
-    $stmt_director = $pdo->query("SELECT id_user FROM users WHERE role = 'Admin' LIMIT 1");
+    // Ambil ID Direktur (asumsi role = 'Direktur' adalah Direktur, atau sesuaikan)
+    $stmt_director = $pdo->query("SELECT id_user FROM users WHERE role = 'Direktur' LIMIT 1");
     $director_id = $stmt_director->fetchColumn();
 
     if ($director_id) {
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
         if ($action === 'approve') {
             if ($type === 'po') {
                 $stmt = $pdo->prepare("
-                    UPDATE purchase_orders 
+                    UPDATE purchase_orders
                     SET status_approval = 'Approved',
                         approved_by = ?,
                         approved_at = NOW(),
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
 
                 $stmt_staff = $pdo->query("SELECT id_user FROM users WHERE role = 'Staf Penerimaan'");
                 $stmt_notif = $pdo->prepare("
-                    INSERT INTO notifications (type, reference_id, id_user_target, title, message) 
+                    INSERT INTO notifications (type, reference_id, id_user_target, title, message)
                     VALUES ('PO', ?, ?, ?, ?)
                 ");
                 while ($staff = $stmt_staff->fetch(PDO::FETCH_ASSOC)) {
@@ -103,8 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
                 $_SESSION['notification'] = ['type' => 'success', 'message' => 'PO berhasil disetujui.'];
             } elseif ($type === 'bm') {
                 $stmt = $pdo->prepare("
-                    UPDATE barang_masuk 
-                    SET status_approval = 'Approved', approved_by = ?, approved_at = NOW(), approval_notes = ? 
+                    UPDATE barang_masuk
+                    SET status_approval = 'Approved', approved_by = ?, approved_at = NOW(), approval_notes = ?
                     WHERE id_bm = ?
                 ");
                 $stmt->execute([$user_id, $notes, $id]);
@@ -131,8 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
                     $stmt_reduce->execute([$it['jumlah_keluar'], $it['id_barang']]);
                 }
                 $stmt = $pdo->prepare("
-                    UPDATE barang_keluar 
-                    SET status_approval = 'Approved', approved_by = ?, approved_at = NOW(), approval_notes = ? 
+                    UPDATE barang_keluar
+                    SET status_approval = 'Approved', approved_by = ?, approved_at = NOW(), approval_notes = ?
                     WHERE id_bk = ?
                 ");
                 $stmt->execute([$user_id, $notes, $id]);
@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
         } elseif ($action === 'decline') {
             if ($type === 'po') {
                 $stmt = $pdo->prepare("
-                    UPDATE purchase_orders 
+                    UPDATE purchase_orders
                     SET status_approval = 'Declined',
                         status = 'Dibatalkan',
                         approved_by = ?,
@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
                 $po_data = $stmt_po->fetch(PDO::FETCH_ASSOC);
 
                 $stmt_notif = $pdo->prepare("
-                    INSERT INTO notifications (type, reference_id, id_user_target, title, message) 
+                    INSERT INTO notifications (type, reference_id, id_user_target, title, message)
                     VALUES ('PO', ?, ?, ?, ?)
                 ");
                 $stmt_notif->execute([
@@ -176,8 +176,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
                 $_SESSION['notification'] = ['type' => 'warning', 'message' => 'PO ditolak & dibatalkan.'];
             } elseif ($type === 'bm') {
                 $stmt = $pdo->prepare("
-                    UPDATE barang_masuk 
-                    SET status_approval = 'Declined', approved_by = ?, approved_at = NOW(), approval_notes = ? 
+                    UPDATE barang_masuk
+                    SET status_approval = 'Declined', approved_by = ?, approved_at = NOW(), approval_notes = ?
                     WHERE id_bm = ?
                 ");
                 $stmt->execute([$user_id, $notes, $id]);
@@ -185,8 +185,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['workflow_action'])) {
             } elseif ($type === 'bk') {
                 // Tidak perlu restore stok karena belum dikurangi sebelumnya
                 $stmt = $pdo->prepare("
-                    UPDATE barang_keluar 
-                    SET status_approval = 'Declined', approved_by = ?, approved_at = NOW(), approval_notes = ? 
+                    UPDATE barang_keluar
+                    SET status_approval = 'Declined', approved_by = ?, approved_at = NOW(), approval_notes = ?
                     WHERE id_bk = ?
                 ");
                 $stmt->execute([$user_id, $notes, $id]);
@@ -282,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
                     $file_ext = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
                     $new_filename = uniqid('BRG_', true) . '.' . $file_ext;
-                    
+
                     if (move_uploaded_file($files['tmp_name'][$i], $upload_dir . $new_filename)) {
                         $sql_img = "INSERT INTO gambar_barang (id_barang, nama_file) VALUES (?, ?)";
                         $stmt_img = $pdo->prepare($sql_img);
@@ -292,7 +292,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     }
                 }
             }
-            
+
             // Jika semua berhasil, commit transaksi
             $pdo->commit();
 
@@ -301,7 +301,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $pdo->rollBack();
             $_SESSION['notification'] = ['type' => 'error', 'message' => $e->getMessage()];
         }
-        
+
         // Redirect HANYA dilakukan di akhir
         header("Location: index.php?page=barang");
         exit();
@@ -310,7 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     // --- AKSI UNTUK MANAJEMEN PENGGUNA ---
     if ($page === 'pengguna') {
-        if ($_SESSION['role'] === 'Admin') {
+        if ($_SESSION['role'] === 'Supervisor') {
             $nama_lengkap = $_POST['nama_lengkap'];
             $username = $_POST['username'];
             $role = $_POST['role'];
@@ -355,7 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
             $pdo->beginTransaction();
             try {
-                $sql_po = "INSERT INTO purchase_orders (kode_po, tanggal_po, id_supplier, id_user, status, status_approval) 
+                $sql_po = "INSERT INTO purchase_orders (kode_po, tanggal_po, id_supplier, id_user, status, status_approval)
                            VALUES (?, ?, ?, ?, 'Menunggu Penerimaan', 'Pending')";
                 $stmt_po = $pdo->prepare($sql_po);
                 $stmt_po->execute([$kode_po, $tanggal_po, $id_supplier, $user_id]);
@@ -363,7 +363,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
                 $sql_detail = "INSERT INTO po_details (id_po, id_barang, jumlah_pesan) VALUES (?, ?, ?)";
                 $stmt_detail = $pdo->prepare($sql_detail);
-                
+
                 foreach ($id_barang_list as $index => $id_barang) {
                     $jumlah = $jumlah_list[$index];
                     if (!empty($id_barang) && $jumlah > 0) {
@@ -373,10 +373,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
                 // Kirim notifikasi ke Direktur
                 sendApprovalNotification(
-                    $pdo, 
-                    'PO', 
-                    $id_po_baru, 
-                    'Purchase Order Baru Menunggu Persetujuan', 
+                    $pdo,
+                    'PO',
+                    $id_po_baru,
+                    'Purchase Order Baru Menunggu Persetujuan',
                     "PO #{$kode_po} telah dibuat oleh {$_SESSION['nama_lengkap']} dan memerlukan persetujuan Anda."
                 );
 
@@ -399,20 +399,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $tanggal_terima = $_POST['tanggal_terima'] ?? date('Y-m-d');
             $catatan = $_POST['catatan'] ?? '';
             $user_id = $_SESSION['user_id'];
-            
+
             // Ambil detail barang dari PO dan id_supplier
             $stmt_po_info = $pdo->prepare("SELECT id_supplier FROM purchase_orders WHERE id_po = ?");
             $stmt_po_info->execute([$id_po]);
             $po_info = $stmt_po_info->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$po_info) {
                 $_SESSION['notification'] = ['type' => 'error', 'message' => 'PO tidak ditemukan.'];
                 header("Location: index.php?page=delivery-order");
                 exit();
             }
-            
+
             $id_supplier = $po_info['id_supplier'];
-            
+
             $stmt_items = $pdo->prepare("SELECT * FROM po_details WHERE id_po = ?");
             $stmt_items->execute([$id_po]);
             $items_to_receive = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
@@ -421,9 +421,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             try {
                 // 1. Generate nomor Barang Masuk
                 $nomor_bm = 'BM-' . date('Ymd-His');
-                
+
                 // 2. FIXED: Insert dengan id_supplier
-                $sql_bm = "INSERT INTO barang_masuk (id_po, nomor_bm, tanggal_terima, id_supplier, id_user, catatan, status_approval) 
+                $sql_bm = "INSERT INTO barang_masuk (id_po, nomor_bm, tanggal_terima, id_supplier, id_user, catatan, status_approval)
                            VALUES (?, ?, ?, ?, ?, ?, 'Pending')";
                 $stmt_bm = $pdo->prepare($sql_bm);
                 $stmt_bm->execute([$id_po, $nomor_bm, $tanggal_terima, $id_supplier, $user_id, $catatan]);
@@ -432,7 +432,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 // 3. Insert detail barang masuk
                 $sql_detail = "INSERT INTO barang_masuk_detail (id_bm, id_barang, jumlah_masuk) VALUES (?, ?, ?)";
                 $stmt_detail = $pdo->prepare($sql_detail);
-                
+
                 foreach ($items_to_receive as $item) {
                     $stmt_detail->execute([$id_bm_baru, $item['id_barang'], $item['jumlah_pesan']]);
                 }
@@ -457,7 +457,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $pdo->rollBack();
                 $_SESSION['notification'] = ['type' => 'error', 'message' => 'Error: ' . $e->getMessage()];
             }
-            
+
             header("Location: index.php?page=delivery-order");
             exit();
         }
@@ -465,7 +465,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     // --- AKSI UNTUK MANAJEMEN SUPPLIER ---
     if ($page === 'supplier') {
-        $can_manage = ($_SESSION['role'] === 'Admin' || $_SESSION['role'] === 'Staf Purchasing');
+        $can_manage = ($_SESSION['role'] === 'Direktur' || $_SESSION['role'] === 'Staf Purchasing');
         if ($can_manage) {
             $nama_supplier = $_POST['nama_supplier'];
             $alamat = $_POST['alamat'];
@@ -551,7 +551,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
     $page = $_GET['page_source'];
     $id = $_GET['id'];
 
-    if ($page === 'barang' && $_SESSION['role'] === 'Admin') {
+    if ($page === 'barang' && $_SESSION['role'] === 'Direktur') {
         $sql = "DELETE FROM barang WHERE id_barang = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$id]);
@@ -560,7 +560,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
         exit();
     }
 
-    if ($page === 'pengguna' && $_SESSION['role'] === 'Admin') {
+    if ($page === 'pengguna' && $_SESSION['role'] === 'Supervisor') {
         if ($id != $_SESSION['user_id']) { // Tidak bisa hapus diri sendiri
             $sql = "DELETE FROM users WHERE id_user = ?";
             $stmt = $pdo->prepare($sql);
@@ -575,7 +575,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
 
     // --- AKSI HAPUS SUPPLIER ---
     if ($page === 'supplier') {
-        $can_manage = ($_SESSION['role'] === 'Admin' || $_SESSION['role'] === 'Staf Purchasing');
+        $can_manage = ($_SESSION['role'] === 'Direktur' || $_SESSION['role'] === 'Staf Purchasing');
         if ($can_manage) {
             // Tambahan: Cek apakah supplier masih digunakan di PO
             $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM purchase_orders WHERE id_supplier = ?");
@@ -592,6 +592,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete') {
         header("Location: index.php?page=supplier");
         exit();
     }
-    
+
 }
 }

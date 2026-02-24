@@ -6,7 +6,7 @@ require_once 'includes/table_helper.php';
 
 // 1. PENGATURAN & PENGAMBILAN PARAMETER
 $user_role = $_SESSION['role'];
-$can_create = ($user_role == 'Admin' || $user_role == 'Staf Purchasing');
+$can_create = ($user_role == 'Direktur' || $user_role == 'Staf Purchasing');
 
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
@@ -22,8 +22,8 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 $filter_status = isset($_GET['filter_status']) ? $_GET['filter_status'] : 'all';
 
 // 2. MEMBANGUN QUERY SQL DINAMIS
-$sql_base = "FROM purchase_orders po 
-             JOIN suppliers s ON po.id_supplier = s.id_supplier 
+$sql_base = "FROM purchase_orders po
+             JOIN suppliers s ON po.id_supplier = s.id_supplier
              LEFT JOIN users u ON po.approved_by = u.id_user";
 $params = [];
 $where_clause = "1=1";
@@ -50,11 +50,11 @@ $stmt_count->execute($params);
 $total_records = $stmt_count->fetchColumn();
 $total_pages = ceil($total_records / $limit);
 
-$data_sql = "SELECT po.id_po, po.kode_po, po.tanggal_po, po.status, po.status_approval, 
-             po.approved_at, s.nama_supplier, u.nama_lengkap as approved_by_name 
-             " . $sql_base . " 
-             WHERE {$where_clause} 
-             ORDER BY {$sort_by} {$order} 
+$data_sql = "SELECT po.id_po, po.kode_po, po.tanggal_po, po.status, po.status_approval,
+             po.approved_at, s.nama_supplier, u.nama_lengkap as approved_by_name
+             " . $sql_base . "
+             WHERE {$where_clause}
+             ORDER BY {$sort_by} {$order}
              LIMIT {$limit} OFFSET {$offset}";
 $stmt = $pdo->prepare($data_sql);
 $stmt->execute($params);
@@ -130,23 +130,23 @@ $url_params = ['page' => 'purchase-order', 'search' => $search, 'limit' => $limi
 
 <!-- Tambahkan Filter UI - UPDATED -->
 <div class="mb-4 bg-white p-4 rounded-lg shadow flex gap-2 flex-wrap">
-    <a href="index.php?page=purchase-order&filter_status=all" 
+    <a href="index.php?page=purchase-order&filter_status=all"
        class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
         <i class="fa-solid fa-list mr-1"></i> Semua
     </a>
-    <a href="index.php?page=purchase-order&filter_status=pending" 
+    <a href="index.php?page=purchase-order&filter_status=pending"
        class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'pending' ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
         <i class="fa-solid fa-clock mr-1"></i> Pending
     </a>
-    <a href="index.php?page=purchase-order&filter_status=approved" 
+    <a href="index.php?page=purchase-order&filter_status=approved"
        class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'approved' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
         <i class="fa-solid fa-check-circle mr-1"></i> Approved
     </a>
-    <a href="index.php?page=purchase-order&filter_status=declined" 
+    <a href="index.php?page=purchase-order&filter_status=declined"
        class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'declined' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
         <i class="fa-solid fa-times-circle mr-1"></i> Declined
     </a>
-    <a href="index.php?page=purchase-order&filter_status=active" 
+    <a href="index.php?page=purchase-order&filter_status=active"
        class="px-4 py-2 rounded transition-colors <?php echo $filter_status === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?>">
         <i class="fa-solid fa-play-circle mr-1"></i> Aktif
     </a>
@@ -177,7 +177,7 @@ $url_params = ['page' => 'purchase-order', 'search' => $search, 'limit' => $limi
                         $badge_class = '';
                         $icon = '';
                         $status_text = '';
-                        
+
                         if ($approval_status === 'Approved') {
                             $badge_class = 'bg-green-100 text-green-700 border border-green-300';
                             $icon = '<i class="fa-solid fa-check-circle mr-1"></i>';
@@ -200,7 +200,7 @@ $url_params = ['page' => 'purchase-order', 'search' => $search, 'limit' => $limi
                         <?php
                         $status = $po['status'];
                         $status_class = '';
-                        
+
                         if ($status === 'Selesai Diterima') {
                             $status_class = 'bg-blue-100 text-blue-700';
                         } elseif ($status === 'Menunggu Penerimaan') {
@@ -214,7 +214,7 @@ $url_params = ['page' => 'purchase-order', 'search' => $search, 'limit' => $limi
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <a href="index.php?page=po-detail&id=<?php echo $po['id_po']; ?>" 
+                        <a href="index.php?page=po-detail&id=<?php echo $po['id_po']; ?>"
                            class="text-blue-500 hover:text-blue-700 font-medium">
                             <i class="fa-solid fa-eye"></i> Detail
                         </a>

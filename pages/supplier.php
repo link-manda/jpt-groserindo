@@ -6,7 +6,7 @@ require_once 'includes/table_helper.php';
 
 // 1. PENGATURAN & PENGAMBILAN PARAMETER
 $user_role = $_SESSION['role'];
-$can_manage = ($user_role == 'Admin' || $user_role == 'Staf Purchasing');
+$can_manage = ($user_role == 'Direktur' || $user_role == 'Staf Purchasing');
 
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;

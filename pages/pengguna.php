@@ -4,7 +4,7 @@
 
 require_once 'includes/table_helper.php';
 
-if ($_SESSION['role'] !== 'Admin' && $_SESSION['role'] !== 'Supervisor') {
+if ($_SESSION['role'] !== 'Supervisor') {
     echo "<h1 class='text-2xl font-bold text-red-600'>Akses Ditolak</h1>";
     echo "<p class='text-gray-600'>Anda tidak memiliki izin untuk mengakses halaman ini.</p>";
     return;

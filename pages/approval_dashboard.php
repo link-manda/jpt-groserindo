@@ -1,14 +1,14 @@
 <?php
 // Hanya bisa diakses oleh Admin/Direktur
-if ($_SESSION['role'] !== 'Admin') {
+if ($_SESSION['role'] !== 'Direktur') {
     header("Location: index.php?page=dashboard");
     exit();
 }
 
 // Ambil notifikasi pending
 $stmt_notif = $pdo->prepare("
-    SELECT * FROM notifications 
-    WHERE id_user_target = ? AND is_read = 0 
+    SELECT * FROM notifications
+    WHERE id_user_target = ? AND is_read = 0
     ORDER BY created_at DESC
 ");
 $stmt_notif->execute([$_SESSION['user_id']]);
@@ -39,12 +39,12 @@ $pending_bk = $stmt_bk->fetchAll(PDO::FETCH_ASSOC);
 try {
     // Cek dulu apakah kolom id_po sudah ada
     $check_column = $pdo->query("SHOW COLUMNS FROM barang_masuk LIKE 'id_po'");
-    
+
     if ($check_column->rowCount() > 0) {
         // Kolom id_po sudah ada, gunakan query lengkap
         $stmt_bm_pending = $pdo->query("
-            SELECT bm.*, 
-                   po.kode_po, 
+            SELECT bm.*,
+                   po.kode_po,
                    s.nama_supplier,
                    u.nama_lengkap as penerima_nama
             FROM barang_masuk bm
@@ -99,17 +99,17 @@ try {
 <div class="bg-white rounded-lg shadow-md mb-6">
     <div class="border-b border-gray-200">
         <nav class="flex">
-            <button onclick="showTab('po')" id="tab-po" 
+            <button onclick="showTab('po')" id="tab-po"
                 class="tab-button flex-1 py-4 px-6 text-center border-b-2 border-blue-500 font-medium text-blue-600 transition-colors">
                 <i class="fa-solid fa-file-invoice mr-2"></i>
                 Purchase Orders <span class="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 inset-ring inset-ring-blue-400/30"><?php echo count($pending_po); ?></span>
             </button>
-            <button onclick="showTab('bk')" id="tab-bk" 
+            <button onclick="showTab('bk')" id="tab-bk"
                 class="tab-button flex-1 py-4 px-6 text-center border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors">
                 <i class="fa-solid fa-box-open mr-2"></i>
                 Barang Keluar <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 inset-ring inset-ring-red-400/20"><?php echo count($pending_bk); ?></span>
             </button>
-            <button onclick="showTab('bm')" id="tab-bm" 
+            <button onclick="showTab('bm')" id="tab-bm"
                 class="tab-button flex-1 py-4 px-6 text-center border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors">
                 <i class="fa-solid fa-truck-ramp-box mr-2"></i>
                 Barang Masuk <span class="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 inset-ring inset-ring-green-400/20"><?php echo count($pending_bm); ?></span>
@@ -140,15 +140,15 @@ try {
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-2">
-                                <button onclick="openApprovalModal('po', <?php echo $po['id_po']; ?>, 'approve')" 
+                                <button onclick="openApprovalModal('po', <?php echo $po['id_po']; ?>, 'approve')"
                                     class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors flex items-center justify-center">
                                     <i class="fa-solid fa-check mr-2"></i> Approve
                                 </button>
-                                <button onclick="openApprovalModal('po', <?php echo $po['id_po']; ?>, 'decline')" 
+                                <button onclick="openApprovalModal('po', <?php echo $po['id_po']; ?>, 'decline')"
                                     class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors flex items-center justify-center">
                                     <i class="fa-solid fa-times mr-2"></i> Decline
                                 </button>
-                                <a href="index.php?page=po-detail&id=<?php echo $po['id_po']; ?>" 
+                                <a href="index.php?page=po-detail&id=<?php echo $po['id_po']; ?>"
                                     class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors flex items-center justify-center">
                                     <i class="fa-solid fa-eye mr-2"></i> Detail
                                 </a>
@@ -188,15 +188,15 @@ try {
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-2">
-                                <button onclick="openApprovalModal('bk', <?php echo $bk['id_bk']; ?>, 'approve')" 
+                                <button onclick="openApprovalModal('bk', <?php echo $bk['id_bk']; ?>, 'approve')"
                                     class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors flex items-center justify-center">
                                     <i class="fa-solid fa-check mr-2"></i> Approve (Kurangi Stok)
                                 </button>
-                                <button onclick="openApprovalModal('bk', <?php echo $bk['id_bk']; ?>, 'decline')" 
+                                <button onclick="openApprovalModal('bk', <?php echo $bk['id_bk']; ?>, 'decline')"
                                     class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors flex items-center justify-center">
                                     <i class="fa-solid fa-times mr-2"></i> Decline
                                 </button>
-                                <a href="index.php?page=bk-detail&id=<?php echo $bk['id_bk']; ?>" 
+                                <a href="index.php?page=bk-detail&id=<?php echo $bk['id_bk']; ?>"
                                     class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors flex items-center justify-center">
                                     <i class="fa-solid fa-eye mr-2"></i> Detail
                                 </a>
@@ -236,15 +236,15 @@ try {
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-2">
-                                <button onclick="openApprovalModal('bm', <?php echo $bm['id_bm']; ?>, 'approve')" 
+                                <button onclick="openApprovalModal('bm', <?php echo $bm['id_bm']; ?>, 'approve')"
                                     class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors flex items-center justify-center">
                                     <i class="fa-solid fa-check mr-2"></i> Approve
                                 </button>
-                                <button onclick="openApprovalModal('bm', <?php echo $bm['id_bm']; ?>, 'decline')" 
+                                <button onclick="openApprovalModal('bm', <?php echo $bm['id_bm']; ?>, 'decline')"
                                     class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors flex items-center justify-center">
                                     <i class="fa-solid fa-times mr-2"></i> Decline
                                 </button>
-                                <a href="index.php?page=bm-detail&id=<?php echo $bm['id_bm']; ?>" 
+                                <a href="index.php?page=bm-detail&id=<?php echo $bm['id_bm']; ?>"
                                     class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors flex items-center justify-center">
                                     <i class="fa-solid fa-eye mr-2"></i> Detail
                                 </a>
@@ -275,7 +275,7 @@ try {
             <?php endif; ?>
         </h2>
     </div>
-    
+
     <div class="p-6">
         <?php if (count($pending_bm) > 0): ?>
             <div class="overflow-x-auto">
@@ -297,15 +297,15 @@ try {
                             <td class="px-4 py-3 text-sm"><?php echo date('d M Y', strtotime($bm['tanggal_terima'])); ?></td>
                             <td class="px-4 py-3 text-sm"><?php echo htmlspecialchars($bm['penerima_nama']); ?></td>
                             <td class="px-4 py-3 text-center">
-                                <a href="index.php?page=bm-detail&id=<?php echo $bm['id_bm']; ?>" 
+                                <a href="index.php?page=bm-detail&id=<?php echo $bm['id_bm']; ?>"
                                    class="text-blue-500 hover:text-blue-700 mr-3">
                                     <i class="fa-solid fa-eye"></i> Detail
                                 </a>
-                                <button onclick="openApprovalModal('bm', <?php echo $bm['id_bm']; ?>, 'approve')" 
+                                <button onclick="openApprovalModal('bm', <?php echo $bm['id_bm']; ?>, 'approve')"
                                         class="text-green-500 hover:text-green-700 mr-2">
                                     <i class="fa-solid fa-check"></i> Approve
                                 </button>
-                                <button onclick="openApprovalModal('bm', <?php echo $bm['id_bm']; ?>, 'decline')" 
+                                <button onclick="openApprovalModal('bm', <?php echo $bm['id_bm']; ?>, 'decline')"
                                         class="text-red-500 hover:text-red-700">
                                     <i class="fa-solid fa-times"></i> Decline
                                 </button>
@@ -369,16 +369,16 @@ try {
 function showTab(tabName) {
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    
+
     // Reset all tab buttons
     document.querySelectorAll('.tab-button').forEach(el => {
         el.classList.remove('border-blue-500', 'text-blue-600');
         el.classList.add('border-transparent', 'text-gray-500');
     });
-    
+
     // Show selected tab
     document.getElementById('content-' + tabName).classList.remove('hidden');
-    
+
     // Highlight active tab button
     const activeTab = document.getElementById('tab-' + tabName);
     activeTab.classList.remove('border-transparent', 'text-gray-500');

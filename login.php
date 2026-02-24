@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         function get_default_page($role)
         {
             switch ($role) {
-                case 'Admin':
+                case 'Direktur':
                 case 'Staf Purchasing':
                 case 'Staf Penerimaan':
                     return 'dashboard';

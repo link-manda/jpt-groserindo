@@ -6,8 +6,8 @@ require_once 'includes/table_helper.php';
 
 // 1. PENGATURAN & PENGAMBILAN PARAMETER
 $user_role = $_SESSION['role'];
-$can_add = ($user_role == 'Admin' || $user_role == 'Staf Purchasing');
-$can_edit_delete = ($user_role == 'Admin');
+$can_add = ($user_role == 'Direktur' || $user_role == 'Staf Purchasing');
+$can_edit_delete = ($user_role == 'Direktur');
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $offset = ($page - 1) * $limit;
@@ -28,7 +28,7 @@ $stmt_count->execute($params);
 $total_records = $stmt_count->fetchColumn();
 $total_pages = ceil($total_records / $limit);
 $data_sql = "
-    SELECT b.*, 
+    SELECT b.*,
            (SELECT g.nama_file FROM gambar_barang g WHERE g.id_barang = b.id_barang ORDER BY g.id_gambar ASC LIMIT 1) as gambar_utama,
            (SELECT COUNT(*) FROM gambar_barang g WHERE g.id_barang = b.id_barang) as jumlah_gambar
     " . $sql_base . " ORDER BY b.{$sort_by} {$order} LIMIT {$limit} OFFSET {$offset}";
@@ -84,8 +84,8 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
         <tbody class="bg-white divide-y divide-gray-200">
             <?php foreach ($barang_list as $barang): ?>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <button type="button" class="btn-lihat-gambar relative" 
-                                data-id="<?php echo htmlspecialchars($barang['id_barang']); ?>" 
+                        <button type="button" class="btn-lihat-gambar relative"
+                                data-id="<?php echo htmlspecialchars($barang['id_barang']); ?>"
                                 data-nama="<?php echo htmlspecialchars($barang['nama_barang']); ?>">
                             <?php if (!empty($barang['gambar_utama'])): ?>
                                 <img src="uploads/barang/<?php echo htmlspecialchars($barang['gambar_utama']); ?>" alt="<?php echo htmlspecialchars($barang['nama_barang']); ?>" class="w-16 h-16 object-cover rounded-md hover:opacity-75 transition-opacity">
@@ -250,10 +250,10 @@ const fileInput = document.getElementById('gambar_barang');
 fileInput.addEventListener('change', function() {
     const maxFiles = 3;
     const maxSize = 2 * 1024 * 1024; // 2MB
-    
+
     // Cek jumlah file yang sudah ada (hanya di mode edit)
     const existingImages = document.querySelectorAll('#list-gambar-lama .gambar-item').length;
-    
+
     if ((this.files.length + existingImages) > maxFiles) {
         Swal.fire({
             icon: 'error',
@@ -325,7 +325,7 @@ fileInput.addEventListener('change', function() {
 
         const closeViewModal = () => viewModal.classList.add('hidden');
         btnCloseViewModal.addEventListener('click', closeViewModal);
-        
+
         window.addEventListener('click', (event) => {
             if (event.target === viewModal) {
                 closeViewModal();

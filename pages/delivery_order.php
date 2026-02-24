@@ -7,10 +7,10 @@ require_once 'includes/table_helper.php';
 // --- DATA UNTUK TABEL ATAS (PO MENUNGGU PENERIMAAN) ---
 try {
     $stmt_pending_po = $pdo->query("
-        SELECT po.id_po, po.kode_po, po.tanggal_po, s.nama_supplier 
-        FROM purchase_orders po 
-        JOIN suppliers s ON po.id_supplier = s.id_supplier 
-        WHERE po.status = 'Menunggu Penerimaan' 
+        SELECT po.id_po, po.kode_po, po.tanggal_po, s.nama_supplier
+        FROM purchase_orders po
+        JOIN suppliers s ON po.id_supplier = s.id_supplier
+        WHERE po.status = 'Menunggu Penerimaan'
         AND po.status_approval = 'Approved'
         ORDER BY po.tanggal_po ASC
     ");
@@ -19,9 +19,9 @@ try {
     // Jika kolom status_approval belum ada
     try {
         $stmt_pending_po = $pdo->query("
-            SELECT po.id_po, po.kode_po, po.tanggal_po, s.nama_supplier 
-            FROM purchase_orders po 
-            JOIN suppliers s ON po.id_supplier = s.id_supplier 
+            SELECT po.id_po, po.kode_po, po.tanggal_po, s.nama_supplier
+            FROM purchase_orders po
+            JOIN suppliers s ON po.id_supplier = s.id_supplier
             WHERE po.status = 'Menunggu Penerimaan'
             ORDER BY po.tanggal_po ASC
         ");
@@ -34,7 +34,7 @@ try {
     }
 }
 
-$can_add = ($user_role == 'Admin' || $user_role == 'Staf Purchasing');
+$can_add = ($user_role == 'Direktur' || $user_role == 'Staf Purchasing');
 // --- RIWAYAT BARANG MASUK ---
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
@@ -53,10 +53,10 @@ $total_pages = 0;
 try {
     $check_table = $pdo->query("SHOW TABLES LIKE 'barang_masuk'");
     $table_exists = $check_table->rowCount() > 0;
-    
+
     if ($table_exists) {
-        $sql_base = "FROM barang_masuk bm 
-                     JOIN purchase_orders po ON bm.id_po = po.id_po 
+        $sql_base = "FROM barang_masuk bm
+                     JOIN purchase_orders po ON bm.id_po = po.id_po
                      JOIN users u ON bm.id_user = u.id_user";
         $params = [];
 
@@ -72,10 +72,10 @@ try {
         $total_records = $stmt_count->fetchColumn();
         $total_pages = ceil($total_records / $limit);
 
-        $data_sql = "SELECT bm.id_bm, bm.nomor_bm, bm.tanggal_terima, bm.status_approval, 
-                     po.kode_po, u.nama_lengkap as penerima_nama 
-                     " . $sql_base . " 
-                     ORDER BY {$sort_by} {$order} 
+        $data_sql = "SELECT bm.id_bm, bm.nomor_bm, bm.tanggal_terima, bm.status_approval,
+                     po.kode_po, u.nama_lengkap as penerima_nama
+                     " . $sql_base . "
+                     ORDER BY {$sort_by} {$order}
                      LIMIT {$limit} OFFSET {$offset}";
         $stmt = $pdo->prepare($data_sql);
         $stmt->execute($params);
@@ -84,11 +84,11 @@ try {
 } catch (PDOException $e) {
     // Tabel belum ada, gunakan data dari delivery_orders sebagai fallback
     try {
-        $sql_base = "FROM delivery_orders do 
-                     JOIN purchase_orders po ON do.id_po = po.id_po 
+        $sql_base = "FROM delivery_orders do
+                     JOIN purchase_orders po ON do.id_po = po.id_po
                      JOIN users u ON do.id_user_penerima = u.id_user";
         $params = [];
-        
+
         if (!empty($search)) {
             $sql_base .= " WHERE po.kode_po LIKE ?";
             $search_param = "%{$search}%";
@@ -101,14 +101,14 @@ try {
         $total_records = $stmt_count->fetchColumn();
         $total_pages = ceil($total_records / $limit);
 
-        $data_sql = "SELECT do.id_do, po.kode_po, do.tanggal_terima, u.nama_lengkap as penerima_nama 
-                     " . $sql_base . " 
-                     ORDER BY do.tanggal_terima {$order} 
+        $data_sql = "SELECT do.id_do, po.kode_po, do.tanggal_terima, u.nama_lengkap as penerima_nama
+                     " . $sql_base . "
+                     ORDER BY do.tanggal_terima {$order}
                      LIMIT {$limit} OFFSET {$offset}";
         $stmt = $pdo->prepare($data_sql);
         $stmt->execute($params);
         $fallback_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         // Convert to format yang sama
         foreach ($fallback_list as $item) {
             $history_bm_list[] = [
@@ -140,7 +140,7 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
         <div class="ml-3">
             <p class="font-semibold">Sistem Approval Belum Aktif</p>
             <p class="text-sm mt-1">
-                Tabel <code class="bg-yellow-200 px-2 py-1 rounded">barang_masuk</code> belum dibuat. 
+                Tabel <code class="bg-yellow-200 px-2 py-1 rounded">barang_masuk</code> belum dibuat.
                 Silakan jalankan SQL migration terlebih dahulu:
             </p>
             <ol class="list-decimal list-inside text-sm mt-2 ml-2">
@@ -182,10 +182,10 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
                             <td class="px-6 py-4 whitespace-nowrap text-sm"><?php echo htmlspecialchars($po['nama_supplier']); ?></td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <?php if (isset($table_exists) && $table_exists): ?>
-                                <?php if ($can_add): ?> 
-                                <button type="button" 
-                                        data-id-po="<?php echo $po['id_po']; ?>" 
-                                        data-kode-po="<?php echo htmlspecialchars($po['kode_po']); ?>" 
+                                <?php if ($can_add): ?>
+                                <button type="button"
+                                        data-id-po="<?php echo $po['id_po']; ?>"
+                                        data-kode-po="<?php echo htmlspecialchars($po['kode_po']); ?>"
                                         class="btn-receive bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 text-sm inline-flex items-center gap-2">
                                     <i class="fa-solid fa-truck"></i>
                                     <span>Konfirmasi Terima</span>
@@ -243,9 +243,9 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <?php
                             $status = $bm['status_approval'];
-                            $badge_class = $status === 'Approved' ? 'bg-green-100 text-green-700' : 
+                            $badge_class = $status === 'Approved' ? 'bg-green-100 text-green-700' :
                                           ($status === 'Declined' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700');
-                            $icon = $status === 'Approved' ? 'fa-check-circle' : 
+                            $icon = $status === 'Approved' ? 'fa-check-circle' :
                                    ($status === 'Declined' ? 'fa-times-circle' : 'fa-clock');
                             ?>
                             <span class="px-3 py-1 text-xs font-semibold rounded-full <?php echo $badge_class; ?>">
@@ -256,12 +256,12 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
                         <?php endif; ?>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <?php if (isset($table_exists) && $table_exists): ?>
-                            <a href="index.php?page=bm-detail&id=<?php echo $bm['id_bm']; ?>" 
+                            <a href="index.php?page=bm-detail&id=<?php echo $bm['id_bm']; ?>"
                                class="text-blue-500 hover:text-blue-700 font-medium">
                                 <i class="fa-solid fa-eye"></i> Detail
                             </a>
                             <?php else: ?>
-                            <a href="index.php?page=po-detail&id=<?php echo $bm['id_bm']; ?>" 
+                            <a href="index.php?page=po-detail&id=<?php echo $bm['id_bm']; ?>"
                                class="text-blue-500 hover:text-blue-700 font-medium">
                                 <i class="fa-solid fa-eye"></i> Detail
                             </a>
@@ -280,7 +280,7 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
             </tbody>
         </table>
     </div>
-    
+
     <!-- Navigasi Paginasi -->
     <?php if ($total_records > 0): ?>
     <div class="mt-6 flex justify-between items-center">
@@ -305,37 +305,37 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
                 <i class="fa-solid fa-times text-xl"></i>
             </button>
         </div>
-        
+
         <form method="POST" action="index.php" id="receiveForm">
             <input type="hidden" name="page_source" value="delivery-order">
             <input type="hidden" name="action" value="proses_penerimaan">
             <input type="hidden" name="id_po" id="modal_id_po">
-            
+
             <div class="p-6">
                 <div class="mb-4">
                     <p class="text-sm text-gray-600 mb-2">Kode PO:</p>
                     <p class="font-semibold text-lg text-blue-600" id="modal_kode_po"></p>
                 </div>
-                
+
                 <div class="mb-4">
                     <label for="tanggal_terima" class="block text-sm font-medium text-gray-700 mb-2">
                         Tanggal Penerimaan <span class="text-red-500">*</span>
                     </label>
-                    <input type="date" name="tanggal_terima" id="tanggal_terima" 
+                    <input type="date" name="tanggal_terima" id="tanggal_terima"
                            value="<?php echo date('Y-m-d'); ?>"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                            required>
                 </div>
-                
+
                 <div class="mb-4">
                     <label for="catatan" class="block text-sm font-medium text-gray-700 mb-2">
                         Catatan <span class="text-gray-400">(Opsional)</span>
                     </label>
-                    <textarea name="catatan" id="catatan" rows="3" 
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                    <textarea name="catatan" id="catatan" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                               placeholder="Kondisi barang, kekurangan, dll..."></textarea>
                 </div>
-                
+
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <p class="text-sm text-yellow-800">
                         <i class="fa-solid fa-info-circle mr-2"></i>
@@ -343,7 +343,7 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
                     </p>
                 </div>
             </div>
-            
+
             <div class="flex items-center justify-end gap-3 p-5 border-t border-gray-200 rounded-b">
                 <button type="button" id="btnCloseModalFooter"
                         class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
@@ -361,14 +361,14 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
 <script>
 (function() {
     'use strict';
-    
+
     // Wait for DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initReceiveModal);
     } else {
         initReceiveModal();
     }
-    
+
     function initReceiveModal() {
         // Attach event listeners to all receive buttons
         var buttons = document.querySelectorAll('.btn-receive');
@@ -380,18 +380,18 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
                 openModal(idPo, kodePo);
             });
         });
-        
+
         // Close button listeners
         var btnCloseHeader = document.getElementById('btnCloseModalHeader');
         var btnCloseFooter = document.getElementById('btnCloseModalFooter');
-        
+
         if (btnCloseHeader) {
             btnCloseHeader.addEventListener('click', closeModal);
         }
         if (btnCloseFooter) {
             btnCloseFooter.addEventListener('click', closeModal);
         }
-        
+
         // ESC key listener
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' || e.keyCode === 27) {
@@ -401,7 +401,7 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
                 }
             }
         });
-        
+
         // Form submit handler
         var form = document.getElementById('receiveForm');
         if (form) {
@@ -414,30 +414,30 @@ $url_params = ['page' => 'delivery-order', 'search' => $search, 'limit' => $limi
             });
         }
     }
-    
+
     function openModal(idPo, kodePo) {
         var modal = document.getElementById('receiveModal');
         var inputIdPo = document.getElementById('modal_id_po');
         var textKodePo = document.getElementById('modal_kode_po');
-        
+
         if (inputIdPo) inputIdPo.value = idPo;
         if (textKodePo) textKodePo.textContent = kodePo;
         if (modal) modal.classList.remove('hidden');
-        
+
         // Focus on date input after modal opens
         setTimeout(function() {
             var dateInput = document.getElementById('tanggal_terima');
             if (dateInput) dateInput.focus();
         }, 150);
     }
-    
+
     function closeModal() {
         var modal = document.getElementById('receiveModal');
         var catatanField = document.getElementById('catatan');
-        
+
         if (modal) modal.classList.add('hidden');
         if (catatanField) catatanField.value = '';
-        
+
         // Re-enable submit button
         var submitBtn = document.getElementById('btnSubmitForm');
         if (submitBtn) {

@@ -5,7 +5,7 @@
 require_once 'includes/table_helper.php';
 
 $user_role = $_SESSION['role'];
-$can_create = ($user_role == 'Admin' || $user_role == 'Staf Penerimaan');
+$can_create = ($user_role == 'Direktur' || $user_role == 'Staf Penerimaan');
 
 // Mengambil data barang untuk dropdown
 $stmt_barang = $pdo->query("SELECT * FROM barang WHERE stok > 0 ORDER BY nama_barang ASC");
