@@ -5,6 +5,18 @@
 // Mengambil role pengguna dari session untuk menampilkan menu yang sesuai
 $user_role = $_SESSION['role'];
 
+// Menghitung notifikasi approval pending untuk badge
+$pending_approvals_count = 0;
+if (isset($pdo) && isset($_SESSION['user_id'])) {
+    try {
+        $stmt_badge = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE id_user_target = ? AND is_read = 0");
+        $stmt_badge->execute([$_SESSION['user_id']]);
+        $pending_approvals_count = $stmt_badge->fetchColumn();
+    } catch (PDOException $e) {
+        // Ignored
+    }
+}
+
 // Mendefinisikan semua item menu dan role yang bisa mengaksesnya
 $menu_items = [
     ['page' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'fa-solid fa-chart-pie', 'roles' => ['Direktur', 'Staf Purchasing', 'Staf Penerimaan']],
@@ -38,9 +50,16 @@ $active_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                 $active_class = $is_active ? 'bg-blue-50 text-blue-600 font-semibold' : '';
                 ?>
                 <a href="index.php?page=<?php echo $item['page']; ?>"
-                    class="flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors <?php echo $active_class; ?>">
-                    <i class="<?php echo $item['icon']; ?> w-5"></i>
-                    <span><?php echo $item['label']; ?></span>
+                    class="flex items-center justify-between px-4 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors <?php echo $active_class; ?>">
+                    <div class="flex items-center gap-3">
+                        <i class="<?php echo $item['icon']; ?> w-5"></i>
+                        <span><?php echo $item['label']; ?></span>
+                    </div>
+                    <?php if ($item['page'] === 'approval-dashboard' && $pending_approvals_count > 0): ?>
+                        <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            <?php echo $pending_approvals_count; ?>
+                        </span>
+                    <?php endif; ?>
                 </a>
             <?php endif; ?>
         <?php endforeach; ?>

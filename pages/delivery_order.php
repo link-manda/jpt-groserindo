@@ -34,7 +34,7 @@ try {
     }
 }
 
-$can_add = ($user_role == 'Direktur' || $user_role == 'Staf Purchasing');
+$can_add = ($user_role == 'Direktur' || $user_role == 'Staf Penerimaan');
 // --- RIWAYAT BARANG MASUK ---
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
