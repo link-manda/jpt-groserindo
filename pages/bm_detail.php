@@ -210,7 +210,7 @@ try {
                         <td class="px-4 py-3 text-sm"><?php echo $index + 1; ?></td>
                         <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($detail['nama_barang']); ?></td>
                         <td class="px-4 py-3 text-sm text-gray-600"><?php echo htmlspecialchars($detail['merek'] ?? '-'); ?></td>
-                        <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_masuk'], 0, ',', '.') . ' ' . htmlspecialchars($detail['satuan'] ?? 'PCS'); ?></td>
+                        <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_masuk'], 0, ',', '.') . ' ' . htmlspecialchars(!empty($detail['satuan']) ? $detail['satuan'] : 'PCS'); ?></td>
                         <td class="px-4 py-3 text-center text-sm">
                             <?php
                             if ($bm['status_approval'] === 'Approved') {

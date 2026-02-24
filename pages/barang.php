@@ -112,7 +112,7 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['merek']); ?></td>
                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['nama_supplier'] ?? '-'); ?></td>
                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['lokasi']); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right font-semibold"><?php echo htmlspecialchars($barang['stok']) . ' ' . htmlspecialchars($barang['satuan'] ?? 'PCS'); ?></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right font-semibold"><?php echo htmlspecialchars($barang['stok']) . ' ' . htmlspecialchars(!empty($barang['satuan']) ? $barang['satuan'] : 'PCS'); ?></td>
                     <?php if ($can_edit_delete): ?>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <button class="btn-edit-barang text-blue-500 hover:text-blue-700 mr-3"
@@ -121,7 +121,7 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                                 data-merek="<?php echo htmlspecialchars($barang['merek']); ?>"
                                 data-supplier="<?php echo htmlspecialchars($barang['id_supplier'] ?? ''); ?>"
                                 data-stok="<?php echo htmlspecialchars($barang['stok']); ?>"
-                                data-satuan="<?php echo htmlspecialchars($barang['satuan'] ?? 'PCS'); ?>"
+                                data-satuan="<?php echo htmlspecialchars(!empty($barang['satuan']) ? $barang['satuan'] : 'PCS'); ?>"
                                 data-lokasi="<?php echo htmlspecialchars($barang['lokasi']); ?>">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>

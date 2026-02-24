@@ -201,7 +201,7 @@ $status_approval = $bk['status_approval'] ?? 'Pending';
                         <td class="px-4 py-3 text-sm"><?php echo $index + 1; ?></td>
                         <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($it['nama_barang']); ?></td>
                         <td class="px-4 py-3 text-sm text-gray-600"><?php echo htmlspecialchars($it['merek'] ?? '-'); ?></td>
-                        <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($it['jumlah_keluar'], 0, ',', '.') . ' ' . htmlspecialchars($it['satuan'] ?? 'PCS'); ?></td>
+                        <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($it['jumlah_keluar'], 0, ',', '.') . ' ' . htmlspecialchars(!empty($it['satuan']) ? $it['satuan'] : 'PCS'); ?></td>
                         <td class="px-4 py-3 text-center text-sm">
                             <?php
                             if ($approval === 'Approved') {

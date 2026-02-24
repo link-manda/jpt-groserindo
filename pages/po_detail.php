@@ -232,7 +232,7 @@ if ($error_message) {
                             <td class="px-4 py-3 text-sm"><?php echo $index + 1; ?></td>
                             <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($detail['nama_barang']); ?></td>
                             <td class="px-4 py-3 text-sm text-gray-600"><?php echo htmlspecialchars($detail['merek'] ?? '-'); ?></td>
-                            <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_pesan'], 0, ',', '.') . ' ' . htmlspecialchars($detail['satuan'] ?? 'PCS'); ?></td>
+                            <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_pesan'], 0, ',', '.') . ' ' . htmlspecialchars(!empty($detail['satuan']) ? $detail['satuan'] : 'PCS'); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -248,7 +248,7 @@ if ($error_message) {
                 <tfoot class="bg-gray-50 font-semibold">
                     <tr>
                         <td colspan="3" class="px-4 py-3 text-right">Total:</td>
-                        <td class="px-4 py-3 text-center"><?php echo number_format($total_quantity, 0, ',', '.'); ?> unit</td>
+                        <td class="px-4 py-3 text-center"><?php echo number_format($total_quantity, 0, ',', '.'); ?> </td>
                     </tr>
                     <tr>
                         <td colspan="3" class="px-4 py-3 text-right text-sm text-gray-600">Total Items:</td>
