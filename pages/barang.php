@@ -8,6 +8,7 @@ require_once 'includes/table_helper.php';
 $user_role = $_SESSION['role'];
 $can_add = ($user_role == 'Direktur' || $user_role == 'Staf Purchasing');
 $can_edit_delete = ($user_role == 'Direktur');
+$can_view_price = ($user_role == 'Direktur' || $user_role == 'Staf Purchasing');
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $offset = ($page - 1) * $limit;
@@ -84,6 +85,11 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <?php generate_sort_link('stok', 'Stok', $url_params); ?>
                 </th>
+                <?php if ($can_view_price): ?>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <?php generate_sort_link('harga', 'Harga', $url_params); ?>
+                </th>
+                <?php endif; ?>
                 <?php if ($can_edit_delete): ?>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 <?php endif; ?>
@@ -113,6 +119,9 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['nama_supplier'] ?? '-'); ?></td>
                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['lokasi']); ?></td>
                     <td class="px-6 py-4 whitespace-nowrap text-right font-semibold"><?php echo htmlspecialchars($barang['stok']) . ' ' . htmlspecialchars(!empty($barang['satuan']) ? $barang['satuan'] : 'PCS'); ?></td>
+                    <?php if ($can_view_price): ?>
+                        <td class="px-6 py-4 whitespace-nowrap text-right font-semibold">Rp <?php echo number_format($barang['harga'], 0, ',', '.'); ?></td>
+                    <?php endif; ?>
                     <?php if ($can_edit_delete): ?>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <button class="btn-edit-barang text-blue-500 hover:text-blue-700 mr-3"
@@ -122,6 +131,7 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                                 data-supplier="<?php echo htmlspecialchars($barang['id_supplier'] ?? ''); ?>"
                                 data-stok="<?php echo htmlspecialchars($barang['stok']); ?>"
                                 data-satuan="<?php echo htmlspecialchars(!empty($barang['satuan']) ? $barang['satuan'] : 'PCS'); ?>"
+                                data-harga="<?php echo htmlspecialchars($barang['harga'] ?? '0'); ?>"
                                 data-lokasi="<?php echo htmlspecialchars($barang['lokasi']); ?>">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>
@@ -248,6 +258,12 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                     <label for="satuan" class="block text-sm font-medium text-gray-700 mb-1">Satuan</label>
                     <input type="text" id="satuan" name="satuan" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: PCS, KG, METER" value="PCS" required>
                 </div>
+                <?php if ($can_view_price): ?>
+                <div class="mb-4">
+                    <label for="harga" class="block text-sm font-medium text-gray-700 mb-1">Harga Beli</label>
+                    <input type="number" id="harga" name="harga" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Masukkan Harga Beli Dasar" value="0" step="0.01" required>
+                </div>
+                <?php endif; ?>
                 <hr class="my-6">
 
                 <!-- Bagian Upload Gambar -->

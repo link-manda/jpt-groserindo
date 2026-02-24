@@ -48,6 +48,12 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("satuan").value =
           button.dataset.satuan || "PCS";
         document.getElementById("lokasi").value = button.dataset.lokasi;
+
+        const hargaEl = document.getElementById("harga");
+        if (hargaEl) {
+          hargaEl.value = button.dataset.harga || "0";
+        }
+
         idBarangInput.readOnly = true;
         idBarangInput.classList.add("bg-gray-100");
 

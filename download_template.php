@@ -13,10 +13,10 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
 
 if ($type === 'barang') {
     $filename = "template_barang.xlsx";
-    $header = ['ID Barang', 'Nama Barang', 'Merek', 'ID Supplier', 'Satuan', 'Stok Awal', 'Lokasi'];
+    $header = ['ID Barang', 'Nama Barang', 'Merek', 'ID Supplier', 'Satuan', 'Harga Beli (Rp)', 'Stok Awal', 'Lokasi'];
     $data = [
-        ['BRG-CONTOH-01', 'Contoh Bor Listrik', 'Contoh Merek', '', 'PCS', 10, 'Rak A-01'],
-        ['BRG-CONTOH-02', 'Contoh Gerinda', 'Contoh Merek', '2', 'UNIT', 15, 'Rak B-02']
+        ['BRG-CONTOH-01', 'Contoh Bor Listrik', 'Contoh Merek', '', 'PCS', 500000, 10, 'Rak A-01'],
+        ['BRG-CONTOH-02', 'Contoh Gerinda', 'Contoh Merek', '2', 'UNIT', 350000, 15, 'Rak B-02']
     ];
 } elseif ($type === 'supplier') {
     $filename = "template_supplier.xlsx";
@@ -37,7 +37,7 @@ $sheet = $spreadsheet->getActiveSheet();
 $sheet->fromArray(array_merge([$header], $data), NULL, 'A1');
 
 // Membuat kolom header menjadi bold
-$sheet->getStyle('A1:G1')->getFont()->setBold(true);
+$sheet->getStyle('A1:H1')->getFont()->setBold(true);
 
 // Mengatur lebar kolom agar otomatis
 foreach (range('A', $sheet->getHighestDataColumn()) as $col) {

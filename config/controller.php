@@ -222,6 +222,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $id_supplier = !empty($_POST['id_supplier']) ? $_POST['id_supplier'] : null;
         $upload_dir = 'uploads/barang/';
 
+        // Logika penarikan harga_barang berdasarkan izin Role
+        $role = $_SESSION['role'] ?? '';
+        $can_view_price = in_array($role, ['Direktur', 'Staf Purchasing']);
+        $harga = 0;
+        if ($can_view_price && isset($_POST['harga'])) {
+            // Bersihkan format harga misal dari input angka rupiah
+            $harga_raw = str_replace(['Rp', '.', ',', ' '], ['', '', '.', ''], $_POST['harga']);
+            $harga = (float)$harga_raw;
+        }
+
         // Memulai transaksi database untuk memastikan semua operasi (data & gambar) berhasil
         $pdo->beginTransaction();
         try {
@@ -231,15 +241,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 if ($stmt_check->fetchColumn() > 0) {
                     throw new Exception('Gagal! ID Barang sudah ada.');
                 }
-                $sql = "INSERT INTO barang (id_barang, nama_barang, merek, stok, lokasi, id_supplier, satuan) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([$id_barang, $nama_barang, $merek, $stok, $lokasi, $id_supplier, $satuan]);
+                if ($can_view_price) {
+                    $sql = "INSERT INTO barang (id_barang, nama_barang, merek, stok, lokasi, id_supplier, satuan, harga) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$id_barang, $nama_barang, $merek, $stok, $lokasi, $id_supplier, $satuan, $harga]);
+                } else {
+                    $sql = "INSERT INTO barang (id_barang, nama_barang, merek, stok, lokasi, id_supplier, satuan) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$id_barang, $nama_barang, $merek, $stok, $lokasi, $id_supplier, $satuan]);
+                }
                 $_SESSION['notification'] = ['type' => 'success', 'message' => 'Data barang berhasil ditambahkan.'];
 
             } elseif ($action === 'edit') {
-                $sql = "UPDATE barang SET nama_barang = ?, merek = ?, stok = ?, lokasi = ?, id_supplier = ?, satuan = ? WHERE id_barang = ?";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([$nama_barang, $merek, $stok, $lokasi, $id_supplier, $satuan, $id_barang]);
+                if ($can_view_price) {
+                    $sql = "UPDATE barang SET nama_barang = ?, merek = ?, stok = ?, lokasi = ?, id_supplier = ?, satuan = ?, harga = ? WHERE id_barang = ?";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$nama_barang, $merek, $stok, $lokasi, $id_supplier, $satuan, $harga, $id_barang]);
+                } else {
+                    $sql = "UPDATE barang SET nama_barang = ?, merek = ?, stok = ?, lokasi = ?, id_supplier = ?, satuan = ? WHERE id_barang = ?";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$nama_barang, $merek, $stok, $lokasi, $id_supplier, $satuan, $id_barang]);
+                }
                 $_SESSION['notification'] = ['type' => 'success', 'message' => 'Data barang berhasil diperbarui.'];
 
                 if (isset($_POST['hapus_gambar'])) {
@@ -354,6 +376,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $id_barang_list = $_POST['id_barang'];
             $jumlah_list = $_POST['jumlah'];
             $satuan_list = $_POST['satuan'];
+            $harga_satuan_list = $_POST['harga_satuan'] ?? []; // Harga list dari UI
             $user_id = $_SESSION['user_id'];
 
             $pdo->beginTransaction();
@@ -364,14 +387,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt_po->execute([$kode_po, $tanggal_po, $id_supplier, $user_id]);
                 $id_po_baru = $pdo->lastInsertId();
 
-                $sql_detail = "INSERT INTO po_details (id_po, id_barang, jumlah_pesan, satuan) VALUES (?, ?, ?, ?)";
+                $sql_detail = "INSERT INTO po_details (id_po, id_barang, jumlah_pesan, satuan, harga_satuan, subtotal) VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt_detail = $pdo->prepare($sql_detail);
 
                 foreach ($id_barang_list as $index => $id_barang) {
-                    $jumlah = $jumlah_list[$index];
+                    $jumlah = (int)$jumlah_list[$index];
                     $satuan = isset($satuan_list[$index]) ? $satuan_list[$index] : 'PCS';
+
+                    $harga_satuan = 0;
+                    if (isset($harga_satuan_list[$index])) {
+                        $harga_raw = str_replace(['Rp', '.', ',', ' '], ['', '', '.', ''], $harga_satuan_list[$index]);
+                        $harga_satuan = (float)$harga_raw;
+                    }
+                    $subtotal = $jumlah * $harga_satuan;
+
                     if (!empty($id_barang) && $jumlah > 0) {
-                        $stmt_detail->execute([$id_po_baru, $id_barang, $jumlah, $satuan]);
+                        $stmt_detail->execute([$id_po_baru, $id_barang, $jumlah, $satuan, $harga_satuan, $subtotal]);
                     }
                 }
 

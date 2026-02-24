@@ -15,6 +15,9 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
     return;
 }
 
+$user_role = $_SESSION['role'] ?? '';
+$can_view_price = in_array($user_role, ['Direktur', 'Staf Purchasing']);
+
 $id_po = (int)$_GET['id'];
 $po = null;
 $po_details = [];
@@ -223,6 +226,10 @@ if ($error_message) {
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Barang</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Merek</th>
                         <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Jumlah</th>
+                        <?php if ($can_view_price): ?>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Harga Satuan</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Subtotal</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -233,6 +240,10 @@ if ($error_message) {
                             <td class="px-4 py-3 font-medium"><?php echo htmlspecialchars($detail['nama_barang']); ?></td>
                             <td class="px-4 py-3 text-sm text-gray-600"><?php echo htmlspecialchars($detail['merek'] ?? '-'); ?></td>
                             <td class="px-4 py-3 text-center font-semibold"><?php echo number_format($detail['jumlah_pesan'], 0, ',', '.') . ' ' . htmlspecialchars(!empty($detail['satuan']) ? $detail['satuan'] : 'PCS'); ?></td>
+                            <?php if ($can_view_price): ?>
+                            <td class="px-4 py-3 text-right">Rp <?php echo number_format($detail['harga_satuan'] ?? 0, 0, ',', '.'); ?></td>
+                            <td class="px-4 py-3 text-right font-medium">Rp <?php echo number_format($detail['subtotal'] ?? 0, 0, ',', '.'); ?></td>
+                            <?php endif; ?>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -247,12 +258,24 @@ if ($error_message) {
                 <?php if (count($po_details) > 0): ?>
                 <tfoot class="bg-gray-50 font-semibold">
                     <tr>
-                        <td colspan="3" class="px-4 py-3 text-right">Total:</td>
+                        <td colspan="3" class="px-4 py-3 text-right">Total Kuantitas:</td>
                         <td class="px-4 py-3 text-center"><?php echo number_format($total_quantity, 0, ',', '.'); ?> </td>
+                        <?php if ($can_view_price): ?>
+                        <td class="px-4 py-3 text-right">Grand Total:</td>
+                        <td class="px-4 py-3 text-right text-blue-700 font-bold text-lg">
+                            <?php
+                            $grand_total = array_sum(array_column($po_details, 'subtotal'));
+                            echo 'Rp ' . number_format($grand_total, 0, ',', '.');
+                            ?>
+                        </td>
+                        <?php endif; ?>
                     </tr>
                     <tr>
                         <td colspan="3" class="px-4 py-3 text-right text-sm text-gray-600">Total Items:</td>
                         <td class="px-4 py-3 text-center text-sm text-gray-600"><?php echo $total_items; ?> items</td>
+                        <?php if ($can_view_price): ?>
+                        <td colspan="2" class="px-4 py-3"></td>
+                        <?php endif; ?>
                     </tr>
                 </tfoot>
                 <?php endif; ?>
