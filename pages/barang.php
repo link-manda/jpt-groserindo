@@ -48,11 +48,13 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
     <h1 class="text-3xl font-bold text-gray-800">Manajemen Barang</h1>
     <div class="flex gap-2">
         <?php if ($can_add): ?>
-        <button id="btn-import-barang" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2">
+        <button id="btn-import-barang"
+            class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2">
             <i class="fa-solid fa-file-excel"></i>
             <span>Import</span>
         </button>
-        <button id="btn-tambah-barang" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2">
+        <button id="btn-tambah-barang"
+            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2">
             <i class="fa-solid fa-plus"></i>
             <span>Tambah Barang</span>
         </button>
@@ -83,7 +85,10 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                     <?php generate_sort_link('lokasi', 'Lokasi', $url_params); ?>
                 </th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <?php generate_sort_link('stok', 'Stok', $url_params); ?>
+                    <?php generate_sort_link('stok', 'Jumlah', $url_params); ?>
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Satuan
                 </th>
                 <?php if ($can_view_price): ?>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -91,58 +96,66 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                 </th>
                 <?php endif; ?>
                 <?php if ($can_edit_delete): ?>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 <?php endif; ?>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             <?php foreach ($barang_list as $barang): ?>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <button type="button" class="btn-lihat-gambar relative"
-                                data-id="<?php echo htmlspecialchars($barang['id_barang']); ?>"
-                                data-nama="<?php echo htmlspecialchars($barang['nama_barang']); ?>">
-                            <?php if (!empty($barang['gambar_utama'])): ?>
-                                <img src="uploads/barang/<?php echo htmlspecialchars($barang['gambar_utama']); ?>" alt="<?php echo htmlspecialchars($barang['nama_barang']); ?>" class="w-16 h-16 object-cover rounded-md hover:opacity-75 transition-opacity">
-                                <?php if ($barang['jumlah_gambar'] > 1): ?>
-                                    <span class="absolute bottom-1 right-1 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">+<?php echo $barang['jumlah_gambar'] - 1; ?></span>
-                                <?php endif; ?>
-                            <?php else: ?>
-                                <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-400">
-                                    <i class="fa-solid fa-image fa-2x"></i>
-                                </div>
-                            <?php endif; ?>
-                        </button>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['id_barang']); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['nama_barang']); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['merek']); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['nama_supplier'] ?? '-'); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['lokasi']); ?></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right font-semibold"><?php echo htmlspecialchars($barang['stok']) . ' ' . htmlspecialchars(!empty($barang['satuan']) ? $barang['satuan'] : 'PCS'); ?></td>
-                    <?php if ($can_view_price): ?>
-                        <td class="px-6 py-4 whitespace-nowrap text-right font-semibold">Rp <?php echo number_format($barang['harga'], 0, ',', '.'); ?></td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <button type="button" class="btn-lihat-gambar relative"
+                    data-id="<?php echo htmlspecialchars($barang['id_barang']); ?>"
+                    data-nama="<?php echo htmlspecialchars($barang['nama_barang']); ?>">
+                    <?php if (!empty($barang['gambar_utama'])): ?>
+                    <img src="uploads/barang/<?php echo htmlspecialchars($barang['gambar_utama']); ?>"
+                        alt="<?php echo htmlspecialchars($barang['nama_barang']); ?>"
+                        class="w-16 h-16 object-cover rounded-md hover:opacity-75 transition-opacity">
+                    <?php if ($barang['jumlah_gambar'] > 1): ?>
+                    <span
+                        class="absolute bottom-1 right-1 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">+<?php echo $barang['jumlah_gambar'] - 1; ?></span>
                     <?php endif; ?>
-                    <?php if ($can_edit_delete): ?>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <button class="btn-edit-barang text-blue-500 hover:text-blue-700 mr-3"
-                                data-id="<?php echo htmlspecialchars($barang['id_barang']); ?>"
-                                data-nama="<?php echo htmlspecialchars($barang['nama_barang']); ?>"
-                                data-merek="<?php echo htmlspecialchars($barang['merek']); ?>"
-                                data-supplier="<?php echo htmlspecialchars($barang['id_supplier'] ?? ''); ?>"
-                                data-stok="<?php echo htmlspecialchars($barang['stok']); ?>"
-                                data-satuan="<?php echo htmlspecialchars(!empty($barang['satuan']) ? $barang['satuan'] : 'PCS'); ?>"
-                                data-harga="<?php echo htmlspecialchars($barang['harga'] ?? '0'); ?>"
-                                data-lokasi="<?php echo htmlspecialchars($barang['lokasi']); ?>">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <a href="index.php?page_source=barang&action=delete&id=<?php echo htmlspecialchars($barang['id_barang']); ?>"
-                                class="text-red-500 hover:text-red-700"
-                                onclick="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
-                                <i class="fa-solid fa-trash"></i>
-                            </a>
-                        </td>
+                    <?php else: ?>
+                    <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-400">
+                        <i class="fa-solid fa-image fa-2x"></i>
+                    </div>
                     <?php endif; ?>
-                </tr>
+                </button>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['id_barang']); ?></td>
+            <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['nama_barang']); ?></td>
+            <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['merek']); ?></td>
+            <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['nama_supplier'] ?? '-'); ?>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($barang['lokasi']); ?></td>
+            <td class="px-6 py-4 whitespace-nowrap text-right font-semibold">
+                <?php echo htmlspecialchars($barang['stok']); ?></td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <?php echo htmlspecialchars(!empty($barang['satuan']) ? $barang['satuan'] : 'PCS'); ?></td>
+            <?php if ($can_view_price): ?>
+            <td class="px-6 py-4 whitespace-nowrap text-right font-semibold">Rp
+                <?php echo number_format($barang['harga'], 0, ',', '.'); ?></td>
+            <?php endif; ?>
+            <?php if ($can_edit_delete): ?>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+                <button class="btn-edit-barang text-blue-500 hover:text-blue-700 mr-3"
+                    data-id="<?php echo htmlspecialchars($barang['id_barang']); ?>"
+                    data-nama="<?php echo htmlspecialchars($barang['nama_barang']); ?>"
+                    data-merek="<?php echo htmlspecialchars($barang['merek']); ?>"
+                    data-supplier="<?php echo htmlspecialchars($barang['id_supplier'] ?? ''); ?>"
+                    data-stok="<?php echo htmlspecialchars($barang['stok']); ?>"
+                    data-satuan="<?php echo htmlspecialchars(!empty($barang['satuan']) ? $barang['satuan'] : 'PCS'); ?>"
+                    data-harga="<?php echo htmlspecialchars($barang['harga'] ?? '0'); ?>"
+                    data-lokasi="<?php echo htmlspecialchars($barang['lokasi']); ?>">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <a href="index.php?page_source=barang&action=delete&id=<?php echo htmlspecialchars($barang['id_barang']); ?>"
+                    class="text-red-500 hover:text-red-700"
+                    onclick="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
+                    <i class="fa-solid fa-trash"></i>
+                </a>
+            </td>
+            <?php endif; ?>
+            </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
@@ -151,11 +164,13 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
 <!-- Navigasi Paginasi -->
 <div class="mt-6 flex justify-between items-center">
     <div class="text-sm text-gray-600">
-        Menampilkan <?php echo $offset + 1; ?> - <?php echo min($offset + $limit, $total_records); ?> dari <?php echo $total_records; ?> data
+        Menampilkan <?php echo $offset + 1; ?> - <?php echo min($offset + $limit, $total_records); ?> dari
+        <?php echo $total_records; ?> data
     </div>
     <?php generate_pagination($total_pages, $url_params); ?>
 </div>
-<div id="view-gambar-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+<div id="view-gambar-modal"
+    class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
     <div class="relative mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center border-b pb-3 mb-5">
             <h3 id="view-gambar-modal-title" class="text-2xl font-bold text-gray-800">Galeri Gambar</h3>
@@ -163,13 +178,15 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                 <i class="fa-solid fa-times text-2xl"></i>
             </button>
         </div>
-        <div id="view-gambar-modal-content" class="grid grid-cols-2 md:grid-cols-3 gap-4" style="max-height: 70vh; overflow-y: auto;">
+        <div id="view-gambar-modal-content" class="grid grid-cols-2 md:grid-cols-3 gap-4"
+            style="max-height: 70vh; overflow-y: auto;">
             <!-- Gambar akan dimuat di sini oleh JavaScript -->
         </div>
     </div>
 </div>
 <!-- Modal untuk Import Barang -->
-<div id="import-barang-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+<div id="import-barang-modal"
+    class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
     <div class="relative mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center border-b pb-3">
             <h3 class="text-2xl font-bold text-gray-800">Import Data Barang</h3>
@@ -185,12 +202,15 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                 <strong>Penting (Format Baru):</strong> Urutan kolom harus tepat seperti berikut:
                 <br><code>ID Barang | Nama Barang | Merek | ID Supplier | Satuan | Stok Awal | Lokasi</code>
                 <ul class="list-disc list-inside mt-1 ml-2 text-xs">
-                    <li><span class="font-semibold">ID Supplier:</span> Boleh kosong, atau isi dengan ID supplier terdaftar.</li>
-                    <li><span class="font-semibold">Satuan:</span> Diwajibkan (contoh: PCS, BOX, ROLL). Default = PCS.</li>
+                    <li><span class="font-semibold">ID Supplier:</span> Boleh kosong, atau isi dengan ID supplier
+                        terdaftar.</li>
+                    <li><span class="font-semibold">Satuan:</span> Diwajibkan (contoh: PCS, BOX, ROLL). Default = PCS.
+                    </li>
                 </ul>
             </div>
             <!-- PEMBARUAN: Link download diubah -->
-            <a href="download_template.php?type=barang" class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 mb-6 font-semibold">
+            <a href="download_template.php?type=barang"
+                class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 mb-6 font-semibold">
                 <i class="fa-solid fa-download"></i> Unduh Template (.xlsx)
             </a>
             <hr class="my-4">
@@ -200,9 +220,11 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
             <form action="upload_handler.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="import_type" value="barang">
                 <!-- PEMBARUAN: Menambahkan atribut 'accept' untuk memfilter file -->
-                <input type="file" name="excel_file" class="w-full border p-2 rounded-md" accept=".xlsx, .xls, .csv" required>
+                <input type="file" name="excel_file" class="w-full border p-2 rounded-md" accept=".xlsx, .xls, .csv"
+                    required>
                 <div class="mt-6 flex justify-end">
-                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Mulai Import</button>
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Mulai
+                        Import</button>
                 </div>
             </form>
         </div>
@@ -210,7 +232,8 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
 </div>
 
 <!-- Modal untuk Tambah/Edit Barang -->
-<div id="barang-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+<div id="barang-modal"
+    class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
     <div class="relative mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center border-b pb-3">
             <h3 id="modal-title" class="text-2xl font-bold text-gray-800">Tambah Barang Baru</h3>
@@ -225,51 +248,64 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
 
                 <div class="mb-4">
                     <label for="id_barang" class="block text-sm font-medium text-gray-700 mb-1">ID Barang</label>
-                    <input type="text" id="id_barang" name="id_barang" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                    <input type="text" id="id_barang" name="id_barang"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
                 </div>
                 <div class="mb-4">
                     <label for="nama_barang" class="block text-sm font-medium text-gray-700 mb-1">Nama Barang</label>
-                    <input type="text" id="nama_barang" name="nama_barang" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                    <input type="text" id="nama_barang" name="nama_barang"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
                 </div>
                 <div class="mb-4">
                     <label for="merek" class="block text-sm font-medium text-gray-700 mb-1">Merek</label>
-                    <input type="text" id="merek" name="merek" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <input type="text" id="merek" name="merek"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div class="mb-4">
                     <label for="id_supplier" class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
-                    <select id="id_supplier" name="id_supplier" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <select id="id_supplier" name="id_supplier"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md">
                         <option value="">-- Pilih Supplier --</option>
                         <?php foreach ($supplier_list as $sup): ?>
-                            <option value="<?php echo $sup['id_supplier']; ?>"><?php echo htmlspecialchars($sup['nama_supplier']); ?></option>
+                        <option value="<?php echo $sup['id_supplier']; ?>">
+                            <?php echo htmlspecialchars($sup['nama_supplier']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="stok" class="block text-sm font-medium text-gray-700 mb-1">Stok</label>
-                        <input type="number" id="stok" name="stok" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                        <input type="number" id="stok" name="stok"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
                     </div>
                     <div>
                         <label for="lokasi" class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-                        <input type="text" id="lokasi" name="lokasi" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="text" id="lokasi" name="lokasi"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
                     </div>
                 </div>
                 <div class="mb-4">
                     <label for="satuan" class="block text-sm font-medium text-gray-700 mb-1">Satuan</label>
-                    <input type="text" id="satuan" name="satuan" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: PCS, KG, METER" value="PCS" required>
+                    <input type="text" id="satuan" name="satuan"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: PCS, KG, METER"
+                        value="PCS" required>
                 </div>
                 <?php if ($can_view_price): ?>
                 <div class="mb-4">
                     <label for="harga" class="block text-sm font-medium text-gray-700 mb-1">Harga Beli</label>
-                    <input type="number" id="harga" name="harga" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Masukkan Harga Beli Dasar" value="0" step="0.01" required>
+                    <input type="number" id="harga" name="harga"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        placeholder="Masukkan Harga Beli Dasar" value="0" step="0.01" required>
                 </div>
                 <?php endif; ?>
                 <hr class="my-6">
 
                 <!-- Bagian Upload Gambar -->
                 <div>
-                    <label for="gambar_barang" class="block text-sm font-medium text-gray-700 mb-1">Tambah Gambar (Maks. 3)</label>
-                    <input type="file" id="gambar_barang" name="gambar_barang[]" class="w-full border p-2 rounded-md" multiple accept="image/jpeg, image/png, image/jpg">
+                    <label for="gambar_barang" class="block text-sm font-medium text-gray-700 mb-1">Tambah Gambar (Maks.
+                        3)</label>
+                    <input type="file" id="gambar_barang" name="gambar_barang[]" class="w-full border p-2 rounded-md"
+                        multiple accept="image/jpeg, image/png, image/jpg">
                     <p class="text-xs text-gray-500 mt-1">Ukuran maksimal per file adalah 2MB.</p>
                 </div>
 
@@ -281,15 +317,17 @@ $url_params = ['page' => 'barang', 'search' => $search, 'limit' => $limit, 'sort
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end">
-                    <button type="button" id="btn-cancel-modal" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 mr-2">Batal</button>
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Simpan</button>
+                    <button type="button" id="btn-cancel-modal"
+                        class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 mr-2">Batal</button>
+                    <button type="submit"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 <script>
-    // Skrip untuk modal tambah/edit barang
+// Skrip untuk modal tambah/edit barang
 const modal = document.getElementById('barang-modal');
 const form = document.getElementById('barang-form');
 const fileInput = document.getElementById('gambar_barang');
@@ -325,59 +363,60 @@ fileInput.addEventListener('change', function() {
     }
 });
 // --- Logika untuk Modal Import Barang ---
-    const importModal = document.getElementById('import-barang-modal');
-    if (importModal) {
-        const importBtn = document.getElementById('btn-import-barang');
-        const closeImportBtn = document.getElementById('btn-close-import-barang-modal');
-        importBtn.addEventListener('click', () => importModal.classList.remove('hidden'));
-        closeImportBtn.addEventListener('click', () => importModal.classList.add('hidden'));
-    }
+const importModal = document.getElementById('import-barang-modal');
+if (importModal) {
+    const importBtn = document.getElementById('btn-import-barang');
+    const closeImportBtn = document.getElementById('btn-close-import-barang-modal');
+    importBtn.addEventListener('click', () => importModal.classList.remove('hidden'));
+    closeImportBtn.addEventListener('click', () => importModal.classList.add('hidden'));
+}
 
-    // --- Logika untuk Modal Galeri Gambar ---
-    const viewModal = document.getElementById('view-gambar-modal');
-    if (viewModal) {
-        const viewModalTitle = document.getElementById('view-gambar-modal-title');
-        const viewModalContent = document.getElementById('view-gambar-modal-content');
-        const btnCloseViewModal = document.getElementById('btn-close-view-gambar-modal');
+// --- Logika untuk Modal Galeri Gambar ---
+const viewModal = document.getElementById('view-gambar-modal');
+if (viewModal) {
+    const viewModalTitle = document.getElementById('view-gambar-modal-title');
+    const viewModalContent = document.getElementById('view-gambar-modal-content');
+    const btnCloseViewModal = document.getElementById('btn-close-view-gambar-modal');
 
-        document.querySelectorAll('.btn-lihat-gambar').forEach(button => {
-            button.addEventListener('click', function() {
-                const idBarang = this.dataset.id;
-                const namaBarang = this.dataset.nama;
+    document.querySelectorAll('.btn-lihat-gambar').forEach(button => {
+        button.addEventListener('click', function() {
+            const idBarang = this.dataset.id;
+            const namaBarang = this.dataset.nama;
 
-                viewModalTitle.textContent = `Galeri: ${namaBarang}`;
-                viewModalContent.innerHTML = '<p class="text-center col-span-3">Memuat gambar...</p>';
-                viewModal.classList.remove('hidden');
+            viewModalTitle.textContent = `Galeri: ${namaBarang}`;
+            viewModalContent.innerHTML = '<p class="text-center col-span-3">Memuat gambar...</p>';
+            viewModal.classList.remove('hidden');
 
-                fetch(`api_get_images.php?id_barang=${idBarang}`)
-                    .then(response => response.json())
-                    .then(images => {
-                        viewModalContent.innerHTML = '';
-                        if (images.length > 0) {
-                            images.forEach(img => {
-                                const imgHtml = `
+            fetch(`api_get_images.php?id_barang=${idBarang}`)
+                .then(response => response.json())
+                .then(images => {
+                    viewModalContent.innerHTML = '';
+                    if (images.length > 0) {
+                        images.forEach(img => {
+                            const imgHtml = `
                                     <div class="w-full h-48">
                                         <a href="uploads/barang/${img.nama_file}" target="_blank">
                                             <img src="uploads/barang/${img.nama_file}" alt="${namaBarang}" class="w-full h-full object-cover rounded-lg shadow-md">
                                         </a>
                                     </div>
                                 `;
-                                viewModalContent.innerHTML += imgHtml;
-                            });
-                        } else {
-                            viewModalContent.innerHTML = '<p class="text-center col-span-3 text-gray-500">Tidak ada gambar untuk barang ini.</p>';
-                        }
-                    });
-            });
+                            viewModalContent.innerHTML += imgHtml;
+                        });
+                    } else {
+                        viewModalContent.innerHTML =
+                            '<p class="text-center col-span-3 text-gray-500">Tidak ada gambar untuk barang ini.</p>';
+                    }
+                });
         });
+    });
 
-        const closeViewModal = () => viewModal.classList.add('hidden');
-        btnCloseViewModal.addEventListener('click', closeViewModal);
+    const closeViewModal = () => viewModal.classList.add('hidden');
+    btnCloseViewModal.addEventListener('click', closeViewModal);
 
-        window.addEventListener('click', (event) => {
-            if (event.target === viewModal) {
-                closeViewModal();
-            }
-        });
-    }
+    window.addEventListener('click', (event) => {
+        if (event.target === viewModal) {
+            closeViewModal();
+        }
+    });
+}
 </script>
