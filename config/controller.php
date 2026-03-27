@@ -220,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $lokasi = $_POST['lokasi'];
         $satuan = !empty($_POST['satuan']) ? $_POST['satuan'] : 'PCS';
         $id_supplier = !empty($_POST['id_supplier']) ? $_POST['id_supplier'] : null;
-        $upload_dir = 'uploads/barang/';
+        $upload_dir = dirname(__DIR__) . '/uploads/barang/';
 
         // Logika penarikan harga_barang berdasarkan izin Role
         $role = $_SESSION['role'] ?? '';

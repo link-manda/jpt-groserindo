@@ -367,7 +367,9 @@ const importModal = document.getElementById('import-barang-modal');
 if (importModal) {
     const importBtn = document.getElementById('btn-import-barang');
     const closeImportBtn = document.getElementById('btn-close-import-barang-modal');
-    importBtn.addEventListener('click', () => importModal.classList.remove('hidden'));
+    if (importBtn) {
+        importBtn.addEventListener('click', () => importModal.classList.remove('hidden'));
+    }
     closeImportBtn.addEventListener('click', () => importModal.classList.add('hidden'));
 }
 
